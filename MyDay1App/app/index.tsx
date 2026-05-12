@@ -7,6 +7,7 @@ import {
   View
 } from 'react-native';
 import NativeDemo from './component/NativeDemo';
+import Task2_RowLayout from './tasks/Task2_RowLayout';
 
 export default function Index() {
   const [name, setName] = useState("UNknown");
@@ -47,7 +48,7 @@ export default function Index() {
           {count > 5 ? "High " : "Low "}
         </Text>
       </View>
-
+      <Task2_RowLayout />
       {/* INPUT SECTION */}
       <TextInput
         placeholder="Enter something..." 
@@ -55,7 +56,7 @@ export default function Index() {
       />
 
       <Text style={styles.text}>You typed: {input}</Text>
-
+      
     </View>
   );
 }
