@@ -17,7 +17,7 @@ import Example3Auth   from './screens/Example3_Auth';
 
 type Screen = 'home' | 'example1' | 'example2' | 'example3';
 
-// ── Home ──────────────────────────────────────────────────────────────────────
+// ── Home
 const HomeScreen: React.FC<{ go: (s: Screen) => void }> = ({ go }) => (
   <SafeAreaView style={styles.safe}>
     <ScrollView contentContainerStyle={styles.homeContent} showsVerticalScrollIndicator={false}>
@@ -58,7 +58,7 @@ const HomeScreen: React.FC<{ go: (s: Screen) => void }> = ({ go }) => (
 
       {/* Why HOCs? */}
       <View style={styles.benefitsCard}>
-        <Text style={styles.benefitsTitle}>✨ Why HOCs?</Text>
+        <Text style={styles.benefitsTitle}> Why HOCs?</Text>
         <Text style={styles.benefitsText}>
           {'• Reuse logic without copy-pasting\n'}
           {'• Keep components focused & small\n'}
