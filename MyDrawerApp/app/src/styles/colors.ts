@@ -30,7 +30,7 @@ export const COLORS = {
   info: '#3B82F6',
 } as const;
 
-export const TEXT_COLORS = {
+export  const TEXT_COLORS = {
   primary: COLORS.gray[900],
   secondary: COLORS.gray[600],
   tertiary: COLORS.gray[500],
