@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { SafeHeader } from './src/components/Drawer/Header/SafeHeader';
 import { COLORS, SPACING, TYPOGRAPHY } from './src/styles/index';
 import { withDrawer } from './src/components/Drawer/DrawerHOC';
+import PlatformEx from './src/components/platformex';
 
 const Index: React.FC = () => {
   return (
@@ -17,6 +18,9 @@ const Index: React.FC = () => {
         <View style={styles.card}>
           <Text style={styles.cardTitle}>Quick Tips</Text>
           <Text style={styles.cardDescription}>• Tap the menu button (☰) to open drawer{'\n'}• Navigate between Home, Profile, and Settings{'\n'}• All code is TypeScript for type safety</Text>
+        </View>
+        <View>
+          <PlatformEx />
         </View>
       </ScrollView>
     </SafeAreaView>

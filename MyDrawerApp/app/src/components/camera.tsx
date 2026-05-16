@@ -1,52 +1,59 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect, FC } from 'react';
 import {
-  StyleSheet,
   View,
-  Image,
-  TouchableOpacity,
   Text,
+  TouchableOpacity,
+  StyleSheet,
   Alert,
- 
-  Animated,
+  Image,
+  ScrollView,
+  ActivityIndicator,
+  SafeAreaView,
+  Platform,
+  StatusBar,
 } from 'react-native';
 import { CameraView, useCameraPermissions } from 'expo-camera';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import * as MediaLibrary from 'expo-media-library';
 
-interface CameraState {
-  mode: 'capture' | 'preview' | 'edit';
-  photoUri: string | null;
-  brightness: number;
-  contrast: number;
-  saturation: number;
+interface Photo {
+  uri: string;
+  id: string;
 }
 
-export default function Camera() {
+const Camera: FC = () => {
   const cameraRef = useRef<CameraView>(null);
-  const [permission, requestPermission] = useCameraPermissions();
-  const [state, setState] = useState<CameraState>({
-    mode: 'capture',
-    photoUri: null,
-    brightness: 0,
-    contrast: 0,
-    saturation: 0,
-  });
+  const [cameraPermission, requestCameraPermission] = useCameraPermissions();
+  const [mediaPermission, requestMediaPermission] = MediaLibrary.usePermissions();
+  const [facing, setFacing] = useState<'front' | 'back'>('back');
+  const [capturedPhotos, setCapturedPhotos] = useState<Photo[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [showCamera, setShowCamera] = useState<boolean>(true);
 
-  const flashOpacity = useRef(new Animated.Value(0)).current;
+  // Request permissions on mount
+  useEffect((): void => {
+    const setupPermissions = async () => {
+      if (!cameraPermission?.granted) {
+        await requestCameraPermission();
+      }
+      if (!mediaPermission?.granted) {
+        await requestMediaPermission();
+      }
+    };
+    setupPermissions();
+  }, );
 
-  // Handle permissions
-  if (!permission) {
-    return <View style={styles.container} />;
-  }
-
-  if (!permission.granted) {
+  // Handle camera permission denied
+  if (cameraPermission && cameraPermission.granted === false) {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.permissionContainer}>
-          <Text style={styles.permissionText}>📷 Camera Permission Required</Text>
+          <Text style={styles.permissionText}>📷 Camera access is required</Text>
+          <Text style={styles.permissionSubtext}>
+            We need camera permission to take photos
+          </Text>
           <TouchableOpacity
             style={styles.permissionButton}
-            onPress={requestPermission}
+            onPress={requestCameraPermission}
           >
             <Text style={styles.permissionButtonText}>Grant Permission</Text>
           </TouchableOpacity>
@@ -55,423 +62,436 @@ export default function Camera() {
     );
   }
 
-  // Flash effect animation
-  const triggerFlash = () => {
-    Animated.sequence([
-      Animated.timing(flashOpacity, {
-        toValue: 1,
-        duration: 100,
-        useNativeDriver: true,
-      }),
-      Animated.timing(flashOpacity, {
-        toValue: 0,
-        duration: 200,
-        useNativeDriver: true,
-      }),
-    ]).start();
-  };
-
-  // Capture photo
-  const takePhoto = async () => {
-    if (cameraRef.current) {
-      try {
-        triggerFlash();
-        const photo = await cameraRef.current.takePictureAsync({
-          quality: 0.8,
-          skipProcessing: false,
-        });
-
-        if (photo?.uri) {
-          setState((prev) => ({
-            ...prev,
-            photoUri: photo.uri,
-            mode: 'preview',
-            brightness: 0,
-            contrast: 0,
-            saturation: 0,
-          }));
-        }
-      } catch (error) {
-        Alert.alert('Error', 'Failed to capture photo');
-      }
-    }
-  };
-
-  // Save to localStorage (AsyncStorage)
-  const savePhoto = async () => {
-    try {
-      if (!state.photoUri) return;
-
-      // Get existing photos
-      const existingPhotos = await AsyncStorage.getItem('photos');
-      const photosArray = existingPhotos ? JSON.parse(existingPhotos) : [];
-
-      // Add new photo with timestamp and edits
-      const newPhoto = {
-        id: Date.now().toString(),
-        uri: state.photoUri,
-        timestamp: new Date().toISOString(),
-        edits: {
-          brightness: state.brightness,
-          contrast: state.contrast,
-          saturation: state.saturation,
-        },
-      };
-
-      photosArray.push(newPhoto);
-      await AsyncStorage.setItem('photos', JSON.stringify(photosArray));
-
-      Alert.alert('Success', 'Photo saved successfully!');
-      resetCamera();
-    } catch (error) {
-      Alert.alert('Error', 'Failed to save photo');
-    }
-  };
-
-  // Retake photo
-  const retakePhoto = () => {
-    setState((prev) => ({
-      ...prev,
-      mode: 'capture',
-      photoUri: null,
-      brightness: 0,
-      contrast: 0,
-      saturation: 0,
-    }));
-  };
-
-  // Reset to camera
-  const resetCamera = () => {
-    setState({
-      mode: 'capture',
-      photoUri: null,
-      brightness: 0,
-      contrast: 0,
-      saturation: 0,
-    });
-  };
-
-  // Edit mode handler
-  const enterEditMode = () => {
-    setState((prev) => ({ ...prev, mode: 'edit' }));
-  };
-
-  // Update edits
-  const updateEdit = (key: 'brightness' | 'contrast' | 'saturation', value: number) => {
-    setState((prev) => ({
-      ...prev,
-      [key]: value,
-    }));
-  };
-
-  // Render camera capture mode
-  if (state.mode === 'capture') {
+  // Loading state
+  if (!cameraPermission || !cameraPermission.granted) {
     return (
       <SafeAreaView style={styles.container}>
-        <CameraView style={styles.camera} ref={cameraRef} facing="back">
-          <Animated.View
-            style={[styles.flashOverlay, { opacity: flashOpacity }]}
-          />
-
-          <View style={styles.cameraHeader}>
-            <Text style={styles.cameraTitle}>📸</Text>
-          </View>
-
-          <View style={styles.cameraFooter}>
-            <TouchableOpacity
-              style={styles.captureButton}
-              onPress={takePhoto}
-              activeOpacity={0.8}
-            >
-              <View style={styles.captureButtonInner} />
-            </TouchableOpacity>
-          </View>
-        </CameraView>
+        <View style={styles.centerContainer}>
+          <ActivityIndicator size="large" color="#007AFF" />
+          <Text style={styles.loadingText}>Setting up camera...</Text>
+        </View>
       </SafeAreaView>
     );
   }
 
-  // Render preview & edit mode
+  // Capture photo
+  const handleCapture = async (): Promise<void> => {
+    if (!cameraRef.current) {
+      Alert.alert('Error', 'Camera reference not available');
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      const photo = await cameraRef.current.takePictureAsync({
+        quality: 0.8,
+        skipProcessing: false,
+      });
+
+      if (!photo) throw new Error('Failed to capture photo');
+
+      // Save to media library
+      if (mediaPermission && mediaPermission.granted) {
+        try {
+          await MediaLibrary.saveToLibraryAsync(photo.uri);
+        } catch (err) {
+          console.warn('Could not save to library:', err);
+        }
+      }
+
+      // Add to local gallery
+      setCapturedPhotos([
+        { uri: photo.uri, id: Date.now().toString() },
+        ...capturedPhotos,
+      ]);
+
+      Alert.alert('Success', 'Photo captured! ✅');
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      Alert.alert('Capture Error', errorMessage);
+      console.error('Capture error:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Toggle camera facing
+  const toggleFacing = (): void => {
+    setFacing((current) => (current === 'back' ? 'front' : 'back'));
+  };
+
+  // Delete photo from gallery
+  const deletePhoto = (id: string): void => {
+    setCapturedPhotos(capturedPhotos.filter((photo) => photo.id !== id));
+  };
+
+  // Clear all photos
+  const clearAll = (): void => {
+    Alert.alert('Clear All', 'Delete all captured photos?', [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Delete',
+        style: 'destructive',
+        onPress: () => setCapturedPhotos([]),
+      },
+    ]);
+  };
+
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.previewContainer}>
-        {/* Image with filters */}
-        <View
-          style={[
-            styles.imageWrapper,
-            {
-              opacity: 1 - Math.abs(state.brightness) * 0.3,
-            },
-          ]}
-        >
-          <Image
-            source={{ uri: state.photoUri || '' }}
-            style={[
-              styles.previewImage,
-              {
-                opacity: 1 + state.brightness * 0.1,
-              },
-            ]}
-          />
-        </View>
-
-        {/* Edit mode controls */}
-        {state.mode === 'edit' && (
-          <View style={styles.editControls}>
-            {/* Brightness */}
-            <View style={styles.controlSlider}>
-              <Text style={styles.controlLabel}>☀️ Brightness</Text>
-              <View style={styles.sliderTrack}>
-                <View
-                  style={[
-                    styles.sliderProgress,
-                    {
-                      width: `${((state.brightness + 100) / 200) * 100}%`,
-                    },
-                  ]}
-                />
+      <StatusBar barStyle="light-content" backgroundColor="#000" />
+      
+      {showCamera ? (
+        <>
+          {/* Camera View */}
+          <View style={styles.cameraContainer}>
+            <CameraView
+              ref={cameraRef}
+              style={styles.camera}
+              facing={facing}
+              onMountError={(error) => {
+                console.error('Camera mount error:', error);
+                Alert.alert('Camera Error', error.message);
+              }}
+            >
+              {/* Top Status Bar */}
+              <View style={styles.topBar}>
+                <Text style={styles.statusText}>
+                  {facing === 'back' ? '📷 Rear Camera' : '🤳 Front Camera'}
+                </Text>
               </View>
-              <Text style={styles.controlValue}>
-                {state.brightness > 0 ? '+' : ''}{state.brightness}
-              </Text>
-            </View>
 
-            {/* Contrast */}
-            <View style={styles.controlSlider}>
-              <Text style={styles.controlLabel}> Contrast</Text>
-              <View style={styles.sliderTrack}>
-                <View
-                  style={[
-                    styles.sliderProgress,
-                    {
-                      width: `${((state.contrast + 100) / 200) * 100}%`,
-                    },
-                  ]}
-                />
-              </View>
-              <Text style={styles.controlValue}>
-                {state.contrast > 0 ? '+' : ''}{state.contrast}
-              </Text>
-            </View>
+              {/* Bottom Controls Overlay */}
+              <View style={styles.bottomOverlay}>
+                <TouchableOpacity
+                  style={styles.smallButton}
+                  onPress={() => setShowCamera(false)}
+                >
+                  <Text style={styles.smallButtonText}>📂 Gallery</Text>
+                </TouchableOpacity>
 
-            {/* Saturation */}
-            <View style={styles.controlSlider}>
-              <Text style={styles.controlLabel}> Saturation</Text>
-              <View style={styles.sliderTrack}>
-                <View
-                  style={[
-                    styles.sliderProgress,
-                    {
-                      width: `${((state.saturation + 100) / 200) * 100}%`,
-                    },
-                  ]}
-                />
+                <TouchableOpacity
+                  style={styles.toggleButtonOverlay}
+                  onPress={toggleFacing}
+                  disabled={isLoading}
+                >
+                  <Text style={styles.toggleButtonText}>🔄</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={styles.flashButton}
+                  onPress={() => {}}
+                >
+                  <Text style={styles.flashButtonText}>⚡</Text>
+                </TouchableOpacity>
               </View>
-              <Text style={styles.controlValue}>
-                {state.saturation > 0 ? '+' : ''}{state.saturation}
-              </Text>
+            </CameraView>
+          </View>
+
+          {/* Main Controls Below Camera */}
+          <View style={styles.controlsContainer}>
+            <TouchableOpacity
+              style={[styles.captureButton, isLoading && styles.disabledButton]}
+              onPress={handleCapture}
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <ActivityIndicator size="small" color="#000" />
+              ) : (
+                <Text style={styles.captureButtonText}>●</Text>
+              )}
+            </TouchableOpacity>
+
+            <View style={styles.photoCountBadge}>
+              <Text style={styles.photoCountText}>{capturedPhotos.length}</Text>
             </View>
           </View>
-        )}
-
-        {/* Action buttons */}
-        <View style={styles.actionButtons}>
-          {state.mode === 'preview' ? (
-            <>
-              <TouchableOpacity
-                style={[styles.button, styles.buttonSecondary]}
-                onPress={retakePhoto}
-              >
-                <Text style={styles.buttonText}>↻ Retake</Text>
+        </>
+      ) : (
+        <>
+          {/* Gallery View */}
+          <View style={styles.galleryHeader}>
+            <TouchableOpacity onPress={() => setShowCamera(true)}>
+              <Text style={styles.backButton}>← Back</Text>
+            </TouchableOpacity>
+            <Text style={styles.galleryHeaderTitle}>
+              Gallery ({capturedPhotos.length})
+            </Text>
+            {capturedPhotos.length > 0 && (
+              <TouchableOpacity onPress={clearAll}>
+                <Text style={styles.clearButton}>Clear</Text>
               </TouchableOpacity>
+            )}
+          </View>
 
-              <TouchableOpacity
-                style={[styles.button, styles.buttonPrimary]}
-                onPress={enterEditMode}
-              >
-                <Text style={styles.buttonText}> Edit</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={[styles.button, styles.buttonSuccess]}
-                onPress={savePhoto}
-              >
-                <Text style={styles.buttonText}> Save</Text>
-              </TouchableOpacity>
-            </>
+          {capturedPhotos.length > 0 ? (
+            <ScrollView style={styles.galleryGrid} showsVerticalScrollIndicator={false}>
+              <View style={styles.photoGrid}>
+                {capturedPhotos.map((photo) => (
+                  <View key={photo.id} style={styles.photoGridItem}>
+                    <Image
+                      source={{ uri: photo.uri }}
+                      style={styles.photoGridImage}
+                    />
+                    <TouchableOpacity
+                      style={styles.photoDeleteButton}
+                      onPress={() => deletePhoto(photo.id)}
+                    >
+                      <Text style={styles.photoDeleteText}>✕</Text>
+                    </TouchableOpacity>
+                  </View>
+                ))}
+              </View>
+            </ScrollView>
           ) : (
-            <>
-              <TouchableOpacity
-                style={[styles.button, styles.buttonSecondary]}
-                onPress={() => setState((prev) => ({ ...prev, mode: 'preview' }))}
-              >
-                <Text style={styles.buttonText}> Back</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={[styles.button, styles.buttonSuccess]}
-                onPress={savePhoto}
-              >
-                <Text style={styles.buttonText}> Save</Text>
-              </TouchableOpacity>
-            </>
+            <View style={styles.emptyGallery}>
+              <Text style={styles.emptyGalleryText}>📸 No photos yet</Text>
+              <Text style={styles.emptyGallerySubtext}>
+                Go back and capture some photos
+              </Text>
+            </View>
           )}
-        </View>
-      </View>
+        </>
+      )}
     </SafeAreaView>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#000',
   },
+  cameraContainer: {
+    flex: 1,
+    overflow: 'hidden',
+    backgroundColor: '#000',
+  },
   camera: {
-    width: '100%',
-    height: '80%',
+    flex: 1,
+    justifyContent: 'space-between',
   },
-  flashOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: '#fff',
+  topBar: {
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
   },
-  cameraHeader: {
-   
-  height: 80,
-  justifyContent: 'flex-start',
-  alignItems: 'center',
-  paddingTop: 20,
+  statusText: {
+    color: '#FFF',
+    fontSize: 14,
+    fontWeight: '600',
+    textAlign: 'center',
   },
-  cameraTitle: {
-    fontSize: 32,
-    opacity: 0.6,
+  bottomOverlay: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
   },
-  cameraFooter: {
+  smallButton: {
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 6,
+  },
+  smallButtonText: {
+    color: '#FFF',
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  toggleButtonOverlay: {
+    backgroundColor: 'rgba(0, 122, 255, 0.8)',
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingBottom: 40,
+  },
+  toggleButtonText: {
+    fontSize: 20,
+  },
+  flashButton: {
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  flashButtonText: {
+    fontSize: 20,
+  },
+  controlsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#1a1a1a',
+    paddingVertical: 20,
+    paddingHorizontal: 16,
+    borderTopWidth: 1,
+    borderTopColor: '#333',
+    gap: 16,
   },
   captureButton: {
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: 'rgba(255, 255, 255, 0.3)',
-    borderWidth: 3,
-    borderColor: '#fff',
+    backgroundColor: '#FF3B30',
     justifyContent: 'center',
     alignItems: 'center',
+    borderWidth: 6,
+    borderColor: '#FFF',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 3,
+    elevation: 5,
   },
-  captureButtonInner: {
-    width: 68,
-    height: 68,
-    borderRadius: 34,
-    backgroundColor: '#fff',
+  disabledButton: {
+    opacity: 0.6,
+  },
+  captureButtonText: {
+    fontSize: 40,
+    color: '#FFF',
+    fontWeight: 'bold',
+  },
+  photoCountBadge: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: '#34C759',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: '#FFF',
+  },
+  photoCountText: {
+    color: '#FFF',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  galleryHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: '#1a1a1a',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#333',
+  },
+  galleryHeaderTitle: {
+    color: '#FFF',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  backButton: {
+    color: '#007AFF',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  clearButton: {
+    color: '#FF3B30',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  galleryGrid: {
+    flex: 1,
+    backgroundColor: '#000',
+  },
+  photoGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    padding: 8,
+    justifyContent: 'space-between',
+  },
+  photoGridItem: {
+    width: '48%',
+    marginBottom: 12,
+    borderRadius: 8,
+    overflow: 'hidden',
+    backgroundColor: '#333',
+  },
+  photoGridImage: {
+    width: '100%',
+    height: 180,
+  },
+  photoDeleteButton: {
+    position: 'absolute',
+    top: 4,
+    right: 4,
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: '#FF3B30',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: '#FFF',
+  },
+  photoDeleteText: {
+    color: '#FFF',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  emptyGallery: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#000',
+  },
+  emptyGalleryText: {
+    color: '#FFF',
+    fontSize: 18,
+    fontWeight: '600',
+    marginBottom: 8,
+  },
+  emptyGallerySubtext: {
+    color: '#999',
+    fontSize: 14,
   },
   permissionContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: 24,
+    paddingHorizontal: 20,
   },
   permissionText: {
+    color: '#FFF',
     fontSize: 20,
-    color: '#fff',
+    fontWeight: 'bold',
+    marginBottom: 12,
+    textAlign: 'center',
+  },
+  permissionSubtext: {
+    color: '#CCC',
+    fontSize: 14,
     marginBottom: 24,
     textAlign: 'center',
-    fontWeight: '600',
   },
   permissionButton: {
     backgroundColor: '#007AFF',
+    paddingVertical: 14,
     paddingHorizontal: 32,
-    paddingVertical: 12,
     borderRadius: 8,
   },
   permissionButtonText: {
-    color: '#fff',
+    color: '#FFF',
     fontSize: 16,
     fontWeight: '600',
   },
-  previewContainer: {
-    flex: 1,
-    backgroundColor: '#000',
-  },
-  imageWrapper: {
+  centerContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: 12,
-    paddingVertical: 20,
   },
-  previewImage: {
-    width: '100%',
-    height: '100%',
-    resizeMode: 'contain',
-    borderRadius: 12,
-  },
-  editControls: {
-    backgroundColor: '#1a1a1a',
-    paddingHorizontal: 16,
-    paddingVertical: 16,
-    gap: 16,
-    maxHeight: 280,
-  },
-  controlSlider: {
-    gap: 8,
-  },
-  controlLabel: {
-    color: '#fff',
+  loadingText: {
+    color: '#FFF',
     fontSize: 14,
-    fontWeight: '600',
-  },
-  sliderTrack: {
-    height: 6,
-    backgroundColor: '#333',
-    borderRadius: 3,
-    overflow: 'hidden',
-  },
-  sliderProgress: {
-    height: '100%',
-    backgroundColor: '#007AFF',
-    borderRadius: 3,
-  },
-  controlValue: {
-    color: '#999',
-    fontSize: 12,
-    textAlign: 'right',
-  },
-  actionButtons: {
-    flexDirection: 'row',
-    paddingHorizontal: 12,
-    paddingVertical: 12,
-    gap: 8,
-    backgroundColor: '#0a0a0a',
-    borderTopWidth: 1,
-    borderTopColor: '#333',
-  },
-  button: {
-    flex: 1,
-    paddingVertical: 12,
-    borderRadius: 8,
-    justifyContent: 'center',
-    alignItems: 'center',
-    minHeight: 48,
-  },
-  buttonPrimary: {
-    backgroundColor: '#007AFF',
-  },
-  buttonSecondary: {
-    backgroundColor: '#333',
-  },
-  buttonSuccess: {
-    backgroundColor: '#34C759',
-  },
-  buttonText: {
-    color: '#fff',
-    fontSize: 14,
-    fontWeight: '600',
+    marginTop: 12,
   },
 });
+
+export default Camera;
