@@ -7,6 +7,8 @@ export default function DrawerLayout() {
       <Stack.Screen name="index" options={{ title: 'Home' }} />
       <Stack.Screen name="profile" options={{ title: 'Profile' }} />
       <Stack.Screen name="settings" options={{ title: 'Settings' }} />
+      <Stack.Screen name="platformex" options={{ title: 'PlatformEx' }} />
+      <Stack.Screen name="Categories" options={{ title: 'Categories' }} />
     </Stack>
   );
 }

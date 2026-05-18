@@ -1,15 +1,23 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, SafeAreaView } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
 import { COLORS, SPACING, TYPOGRAPHY } from '../../styles/index';
 
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { Label } from '@react-navigation/elements';
 const DrawerContent: React.FC<{ onClose: () => void }> = ({ onClose }) => {
-  const router = useRouter();
+  const   router = useRouter();
   const menuItems = [
     { id: '1', label: 'Home', route: '/' },
     { id: '2', label: 'Profile', route: '/profile' },
     { id: '3', label: 'Settings', route: '/settings' },
+    { id: '4', label: 'PlatformEx', route: '/PlatformEx' },
+    { id: '5', label: 'Categories', route: '/CategoryScreen' }
+
+
   ];
+
+
 
   const handleNavigate = (route: string) => {
     router.push(route as any);

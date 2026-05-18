@@ -1,14 +1,19 @@
 import * as React from 'react';
-import { View, useWindowDimensions } from 'react-native';
-import { TextInput } from 'react-native-gesture-handler';
-import { TabView, SceneMap, TabBar } from 'react-native-tab-view'  ;
+import { View, Text, StyleSheet, useWindowDimensions } from 'react-native';
+import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
 
 const FirstRoute = () => (
-  <View style={{ flex: 1, backgroundColor: '#d88424' }} />
+  <View style={[styles.scene, styles.firstRoute]}>
+    <Text style={styles.routeText}>First route content</Text>
+    <Text style={styles.routeSubtext}>This content appears when you select the First tab.</Text>
+  </View>
 );
 
 const SecondRoute = () => (
-  <View style={{ flex: 1, backgroundColor: '#5d13d3', alignSelf: 'center' }} />
+  <View style={[styles.scene, styles.secondRoute]}>
+    <Text style={styles.routeText}>Second route content</Text>
+    <Text style={styles.routeSubtext}>This content appears when you select the Second tab.</Text>
+  </View>
 );
 
 const renderScene = SceneMap({
@@ -26,28 +31,44 @@ export default function Tab() {
   const [index, setIndex] = React.useState(0);
 
   return (
-    <>
-    <View>
-<TextInput  placeholder="Type here..."
-style={{ margin: 20, padding:20,height: 40, width: "50%", borderColor: 'gray', borderWidth: 1, marginTop: 20, paddingHorizontal: 10 }}
-/>
-</View>
     <TabView
-  navigationState={{ index, routes }}
-  renderScene={renderScene}
-  onIndexChange={setIndex}
-  initialLayout={{ width: layout.width }}
-  renderTabBar={props => (
-    
-    <TabBar
-      {...props}
-      indicatorStyle={{ backgroundColor: '#f1ee5c' }} // Color of the line under the tab
-      style={{ backgroundColor: '#204c11' }}       // Background color of the bar
+      navigationState={{ index, routes }}
+      renderScene={renderScene}
+      onIndexChange={setIndex}
+      initialLayout={{ width: layout.width }}
+      renderTabBar={(props) => (
+        <TabBar
+          {...props}
+          indicatorStyle={{ backgroundColor: '#f1ee5c' }}
+          style={{ backgroundColor: '#204c11' }}
+        />
+      )}
     />
-  )}
-  
-/>
-
-</>
   );
 }
+
+const styles = StyleSheet.create({
+  scene: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  firstRoute: {
+    backgroundColor: '#d88424',
+  },
+  secondRoute: {
+    backgroundColor: '#5d13d3',
+  },
+  routeText: {
+    fontSize: 22,
+    fontWeight: '700',
+    color: '#ffffff',
+    marginBottom: 10,
+  },
+  routeSubtext: {
+    fontSize: 16,
+    color: '#f7f7f7',
+    textAlign: 'center',
+  },
+});

@@ -1,3 +1,3 @@
-import ProfileScreen from './src/components/Drawer/profile';
+import ProfileScreen from './src/Screens/profile';
 
 export default ProfileScreen;

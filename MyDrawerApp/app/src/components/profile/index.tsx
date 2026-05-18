@@ -2,10 +2,10 @@ import React from 'react';
 import { View, StyleSheet, Text,TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { SafeHeader } from '../Header/SafeHeader';
-import { COLORS, SPACING, TYPOGRAPHY } from '../../../styles/index';
-import { withDrawer } from '../DrawerHOC';
+import { COLORS, SPACING, TYPOGRAPHY } from '../../styles/index';
+import { withDrawer } from '../Drawer/DrawerHOC';
 import { Button } from '@react-navigation/elements';
-import Camera from '../../camera';
+import Camera from '../camera';
 
 
 const ProfileScreen: React.FC = () => {

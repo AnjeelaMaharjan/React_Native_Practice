@@ -1,11 +1,15 @@
 import React from 'react';
 import {Platform, StyleSheet, Text, ScrollView} from 'react-native';
 import {SafeAreaView, SafeAreaProvider} from 'react-native-safe-area-context';
+import { SafeHeader } from './Header/SafeHeader';
+import withDrawer  from './Drawer/DrawerHOC';
 
-const PlatformEx = () => {
+const PlatformEx :React.FC = () => {
   return (
     <SafeAreaProvider>
+      {/* <SafeHeader title="PlatformEx" showDrawerButton={true} /> title="PlatformEx" showDrawerButton={true} /> */}
       <SafeAreaView style={styles.safeArea}>
+          <SafeHeader title="Platform Example" />
         <ScrollView contentContainerStyle={styles.container}>
           <Text>OS</Text>
           <Text style={styles.value}>{Platform.OS}</Text>
@@ -45,4 +49,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default PlatformEx;
+export default withDrawer(PlatformEx);

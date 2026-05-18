@@ -7,10 +7,11 @@ import {
 
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useDrawerContext } from '../../../context/DrawerContext';
-import { COLORS } from '../../../styles/colors';
-import { SPACING } from '../../../styles/spacing';
-import { TYPOGRAPHY } from '../../../styles/typography';
+import { useDrawerContext } from '../../context/DrawerContext';
+import { COLORS } from '../../styles/colors';
+import { SPACING } from '../../styles/spacing';
+import { TYPOGRAPHY } from '../../styles/typography';
+import CustomHeader from './CustomHeader';
 
 interface SafeHeaderProps {
   title: string;
@@ -46,6 +47,9 @@ export const SafeHeader: React.FC<SafeHeaderProps> = ({
             </TouchableOpacity>
           )}
           <Text style={styles.title}>{title}</Text>
+          <View style={styles.rightSection}>
+            <Text>Hello this is right side</Text>
+          </View>
         </View>
 
         {rightComponent && (
@@ -54,6 +58,8 @@ export const SafeHeader: React.FC<SafeHeaderProps> = ({
           </View>
         )}
       </View>
+      <CustomHeader />
+
     </SafeAreaView>
   );
 };
@@ -89,7 +95,8 @@ const styles = StyleSheet.create({
     color: COLORS.gray[900],
   },
   rightSection: {
-    marginLeft: SPACING.md,
+    marginLeft: SPACING['2xl'],
+
   },
 });
 

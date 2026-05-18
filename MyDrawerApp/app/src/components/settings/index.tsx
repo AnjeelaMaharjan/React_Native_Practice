@@ -2,9 +2,9 @@ import React from 'react';
 import { View, StyleSheet, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { SafeHeader } from '../Header/SafeHeader';
-import { COLORS, SPACING, TYPOGRAPHY } from '../../../styles/index';
-import { withDrawer } from '../DrawerHOC';
-import Tab from '@/app/tab';
+import { COLORS, SPACING, TYPOGRAPHY } from '../../styles/index';
+import { withDrawer } from '../Drawer/DrawerHOC';
+import Tab from '../../../tab';
 
 const SettingsScreen: React.FC = () => {
   return (
