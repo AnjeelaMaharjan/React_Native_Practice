@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { SafeHeader } from './src/components/Header/SafeHeader';
 import { COLORS, SPACING, TYPOGRAPHY } from './src/styles/index';
 import { withDrawer } from './src/components/Drawer/DrawerHOC';
+import Screens from './src/Screens';
 
 
 interface CounterState {

@@ -1,6 +1,4 @@
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { View, Text, StyleSheet } from 'react-native';
-
 
 const CustomHeader = () => {
   
@@ -8,7 +6,6 @@ const CustomHeader = () => {
     <View style = {headerStyle.container}>
       <Text style={{ color: 'white', fontSize: 18, fontWeight: 'bold' }}>Header Content</Text>
       <View>Space-evenly</View>
-
     </View>
 
     

@@ -12,7 +12,9 @@ const DrawerContent: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     { id: '2', label: 'Profile', route: '/profile' },
     { id: '3', label: 'Settings', route: '/settings' },
     { id: '4', label: 'PlatformEx', route: '/PlatformEx' },
-    { id: '5', label: 'Categories', route: '/CategoryScreen' }
+    { id: '5', label: 'Categories', route: '/CategoryScreen' },
+    { id: '6', label: 'Camera', route: '/camera' },
+    { id: '7', label: 'Tab View', route: '/tab' }
 
 
   ];
