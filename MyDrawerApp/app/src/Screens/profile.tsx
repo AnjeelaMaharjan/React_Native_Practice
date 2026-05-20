@@ -1,63 +1,69 @@
-import React from "react";
-import { View, StyleSheet, Text, TouchableOpacity } from "react-native";
+import React, { useState } from "react";
+import { View, StyleSheet, Text, KeyboardAvoidingView, Platform, Modal, Button as RNButton } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { SafeHeader } from "../components/Header/SafeHeader";
+import SafeHeader from "../components/Header/SafeHeader"; 
 import { COLORS, SPACING, TYPOGRAPHY } from "../styles/index";
 import { withDrawer } from "../components/Drawer/DrawerHOC";
 import { Button } from "@react-navigation/elements";
-// import Camera from "./camera";
+import { Profilestyles as styles } from "../styles/style";
 
 const ProfileScreen: React.FC = () => {
-  const showAlert = (message: string) => {
-    alert(message);
-  };
-  const handleButtonPress = () => {
-    showAlert("This is my Profile Page.");
-  };
-  return (
-    <SafeAreaView style={styles.container} edges={["top"]}>
-      <SafeHeader title="Profile" />
-      <View style={styles.content}>
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Your Profile</Text>
-          <Text style={styles.cardDescription}>
-            Add your profile information here
-          </Text>
-          <Button onPress={handleButtonPress}>Press me</Button>
 
-          {/* <Camera /> */}
+  const [modalVisible, setModalVisible] = useState(false);
+
+  const handleButtonPress = () => {
+    setModalVisible(true); 
+  };
+
+  return (
+    <>
+      <SafeAreaView style={styles.container} edges={["top"]}>
+        <SafeHeader title="Profile" showDrawerButton={true} />
+        
+        <KeyboardAvoidingView 
+          style={{ flex: 1 }} 
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+        >
+          <View style={styles.content}>
+            <View style={styles.card}>
+              <Text style={styles.cardTitle}>Your Profile</Text>
+              <Text style={styles.cardDescription}>
+                Add your profile information here
+              </Text>
+              <Button onPress={handleButtonPress}>Open Profile Modal</Button>
+            </View>
+          </View>
+        </KeyboardAvoidingView>
+      </SafeAreaView>
+
+
+      <Modal
+        visible={modalVisible}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setModalVisible(false)} 
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Profile Details</Text>
+            <Text style={styles.modalBody}>
+             THis is a modal showing more details about the profile. You can add more information or actions here as needed.
+             This modal can be closed by pressing the button below.
+             </Text>
+            
+            <View style={styles.modalButtonContainer}>
+              <RNButton 
+                title="Close" 
+                color={COLORS.primary[600]} 
+                onPress={() => setModalVisible(false)} 
+              />
+            </View>
+          </View>
         </View>
-      </View>
-    </SafeAreaView>
+      </Modal>
+    </>
   );
 };
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: COLORS.gray[50] },
-  content: { padding: SPACING.lg },
-  card: {
-    backgroundColor: COLORS.white,
-    borderRadius: 12,
-    padding: SPACING.lg,
-    elevation: 2,
-    shadowColor: COLORS.black,
-    shadowOpacity: 0.1,
-    shadowRadius: 3.84,
-    shadowOffset: { width: 0, height: 2 },
-  },
-  cardTitle: {
-    ...TYPOGRAPHY.h3,
-    color: COLORS.primary[600],
-    marginBottom: SPACING.md,
-  },
-  cardDescription: { ...TYPOGRAPHY.body, color: COLORS.gray[600] },
-  buttonText: {
-    ...TYPOGRAPHY.h2,
-    color: COLORS.black,
-    borderWidth: 1,
-    textAlign: "center",
-    marginBottom: SPACING.lg,
-  },
-});
 
 export default withDrawer(ProfileScreen);

@@ -156,6 +156,7 @@ const Camera: FC = () => {
             >
               {/* Top Status Bar */}
               <View style={styles.topBar}>
+                 
                 <Text style={styles.statusText}>
                   {facing === 'back' ? '📷 Rear Camera' : '🤳 Front Camera'}
                 </Text>
@@ -198,7 +199,7 @@ const Camera: FC = () => {
               {isLoading ? (
                 <ActivityIndicator size="small" color="#000" />
               ) : (
-                <Text style={styles.captureButtonText}>●</Text>
+                <Text style={styles.captureButtonText}>Capture</Text>
               )}
             </TouchableOpacity>
 
