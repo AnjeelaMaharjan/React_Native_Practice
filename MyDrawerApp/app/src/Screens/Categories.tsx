@@ -1,15 +1,18 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import {
   View,
   Text,
   Image,
   FlatList,
   TouchableOpacity,
+  RefreshControl,
+  ScrollView,
 } from "react-native";
-import { withDrawer } from "../components/Drawer/DrawerHOC";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { Categorystyles as styles} from "../styles/style";
 import SafeHeader from "../components/Header/SafeHeader";
-import {Categoriesstyles, Categoriesstyles as styles} from "../styles/style";
+import { SafeAreaProvider } from "react-native-safe-area-context";
+import withDrawer from "../components/Drawer/DrawerHOC";
 
 interface Item {
   id: string;
@@ -24,121 +27,238 @@ interface Category {
   items: Item[];
 }
 
-// Updated data matching pokemondb.net stats and types
 const CATEGORIES: Category[] = [
   {
     id: 1,
     title: "Generation 1 - Starters",
     items: [
-      { id: "0001", name: "Bulbasaur", type: "Grass · Poison", image: "https://img.pokemondb.net/sprites/home/normal/1x/bulbasaur.png" },
-      { id: "0004", name: "Charmander", type: "Fire", image: "https://img.pokemondb.net/sprites/home/normal/1x/charmander.png" },
-      { id: "0007", name: "Squirtle", type: "Water", image: "https://img.pokemondb.net/sprites/home/normal/1x/squirtle.png" },
-      { id: "0025", name: "Pikachu", type: "Electric", image: "https://img.pokemondb.net/sprites/home/normal/1x/pikachu.png" },
+      {
+        id: "0001-a",
+        name: "Bulbasaur",
+        type: "Grass · Poison",
+        image: "https://img.pokemondb.net/sprites/home/normal/1x/bulbasaur.png",
+      },
+      {
+        id: "0004-a",
+        name: "Charmander",
+        type: "Fire",
+        image:
+          "https://img.pokemondb.net/sprites/home/normal/1x/charmander.png",
+      },
+      {
+        id: "0007-a",
+        name: "Squirtle",
+        type: "Water",
+        image: "https://img.pokemondb.net/sprites/home/normal/1x/squirtle.png",
+      },
+      {
+        id: "0025-a",
+        name: "Pikachu",
+        type: "Electric",
+        image: "https://img.pokemondb.net/sprites/home/normal/1x/pikachu.png",
+      },
+      {
+        id: "0024-b",
+        name: "Arbok",
+        type: "Poison",
+        image: "https://img.pokemondb.net/sprites/scarlet-violet/normal/arbok.png",
+      },
+      {
+        id: "0017-b",
+        name: "Seadra",
+        type: "Water",
+        image:
+          "https://img.pokemondb.net/sprites/home/normal/1x/seadra.png",
+      },
+      {
+        id: "0007-b",
+        name: "Squirtle (Dup)",
+        type: "Water",
+        image: "https://img.pokemondb.net/sprites/home/normal/1x/squirtle.png",
+      },
+      {
+        id: "0025-b",
+        name: "Pikachu (Dup)",
+        type: "Electric",
+        image: "https://img.pokemondb.net/sprites/home/normal/1x/pikachu.png",
+      },
     ],
   },
   {
     id: 2,
     title: "Early Route Normal & Flying",
     items: [
-      { id: "0016", name: "Pidgey", type: "Normal · Flying", image: "https://img.pokemondb.net/sprites/home/normal/1x/pidgey.png" },
-      { id: "0019", name: "Rattata", type: "Normal", image: "https://img.pokemondb.net/sprites/home/normal/1x/rattata.png" },
-      { id: "0012", name: "Butterfree", type: "Bug · Flying", image: "https://img.pokemondb.net/sprites/home/normal/1x/butterfree.png" },
-      { id: "0015", name: "Beedrill", type: "Bug · Poison", image: "https://img.pokemondb.net/sprites/home/normal/1x/beedrill.png" },
+      {
+        id: "0016",
+        name: "Pidgey",
+        type: "Normal · Flying",
+        image: "https://img.pokemondb.net/sprites/home/normal/1x/pidgey.png",
+      },
+      {
+        id: "0019",
+        name: "Rattata",
+        type: "Normal",
+        image: "https://img.pokemondb.net/sprites/home/normal/1x/rattata.png",
+      },
+      {
+        id: "0012",
+        name: "Butterfree",
+        type: "Bug · Flying",
+        image:
+          "https://img.pokemondb.net/sprites/home/normal/1x/butterfree.png",
+      },
+      {
+        id: "0015",
+        name: "Beedrill",
+        type: "Bug · Poison",
+        image: "https://img.pokemondb.net/sprites/home/normal/1x/beedrill.png",
+      },
     ],
   },
   {
     id: 3,
     title: "Fan Favorites & Ghosts",
     items: [
-      { id: "0133", name: "Eevee", type: "Normal", image: "https://img.pokemondb.net/sprites/home/normal/1x/eevee.png" },
-      { id: "0039", name: "Jigglypuff", type: "Normal · Fairy", image: "https://img.pokemondb.net/sprites/home/normal/1x/jigglypuff.png" },
-      { id: "0094", name: "Gengar", type: "Ghost · Poison", image: "https://img.pokemondb.net/sprites/home/normal/1x/gengar.png" },
-      { id: "0093", name: "Haunter", type: "Ghost · Poison", image: "https://img.pokemondb.net/sprites/home/normal/1x/haunter.png" },
+      {
+        id: "0133",
+        name: "Eevee",
+        type: "Normal",
+        image: "https://img.pokemondb.net/sprites/home/normal/1x/eevee.png",
+      },
+      {
+        id: "0039",
+        name: "Jigglypuff",
+        type: "Normal · Fairy",
+        image:
+          "https://img.pokemondb.net/sprites/home/normal/1x/jigglypuff.png",
+      },
+      {
+        id: "0094",
+        name: "Gengar",
+        type: "Ghost · Poison",
+        image: "https://img.pokemondb.net/sprites/home/normal/1x/gengar.png",
+      },
+      {
+        id: "0093",
+        name: "Haunter",
+        type: "Ghost · Poison",
+        image: "https://img.pokemondb.net/sprites/home/normal/1x/haunter.png",
+      },
     ],
   },
 ];
 
-const CategoryScreen: React.FC = () => {
-  // 'card' or 'list' layout maintain garna state
+export const CategoryScreen = () => {
   const [viewMode, setViewMode] = useState<"card" | "list">("card");
+  const [refreshing, setRefreshing] = useState(false);
 
-  // Inside horizontal rows (Card vs List item switcher)
-  const renderHorizontalItem = ({ item }: { item: Item }) => {
-    if (viewMode === "card") {
-      // 1. CARD VIEW LAYOUT
-      return (
-        <View style={Categoriesstyles.card}>
-          <View style={Categoriesstyles.imageContainer}>
-            {item.image && (
-              <Image source={{ uri: item.image }} style={Categoriesstyles.pokemonImage} resizeMode="contain" />
-            )}
-          </View>
-          <View style={Categoriesstyles.cardFooter}>
-            <Text numberOfLines={1} style={Categoriesstyles.itemName}>{item.name}</Text>
-            <Text style={Categoriesstyles.itemType}>{item.type}</Text>
-          </View>
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+
+    setTimeout(() => {
+      setRefreshing(false);
+    }, 2000);
+  }, []);
+
+  const renderPokemonCard = (item: Item) => {
+    return (
+      <View key={item.id} style={styles.card}>
+        <View style={styles.imageWrapper}>
+          <Image
+            source={{ uri: item.image }}
+            style={styles.image}
+            resizeMode="contain"
+          />
         </View>
-      );
-    } else {
-      // 2. LIST VIEW LAYOUT
-      return (
-        <View style={Categoriesstyles.listItem}>
-          {item.image && (
-            <Image source={{ uri: item.image }} style={Categoriesstyles.listImage} resizeMode="contain" />
-          )}
-          <View style={Categoriesstyles.listTextContainer}>
-            <Text style={Categoriesstyles.listNameText}>{item.name}</Text>
-            <Text style={Categoriesstyles.listTypeText}>#{item.id} • {item.type}</Text>
-          </View>
-        </View>
-      );
-    }
+
+        <Text numberOfLines={1} style={styles.name}>
+          {item.name}
+        </Text>
+
+        <Text style={styles.type}>{item.type}</Text>
+      </View>
+    );
   };
 
-  // Outer Vertical Structure
-  const renderCategoryRow = ({ item: category }: { item: Category }) => (
-    <View style={Categoriesstyles.categoryContainer}>
-      <Text style={Categoriesstyles.categoryTitle}>{category.title}</Text>
-      <FlatList
-        data={category.items}
-        renderItem={renderHorizontalItem}
-        keyExtractor={(item) => item.id}
-        showsVerticalScrollIndicator={viewMode === "card"} // Card huda side-scroll, list huda vertical grid type scroll block
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={viewMode === "card" ? Categoriesstyles.horizontalPadding : Categoriesstyles.listContainerPadding}
-      />
-    </View>
-  );
+  const renderPokemonList = (item: Item) => {
+    return (
+      <View key={item.id} style={styles.listItem}>
+        <Image
+          source={{ uri: item.image }}
+          style={styles.listImage}
+          resizeMode="contain"
+        />
 
+        <View>
+          <Text style={styles.listName}>{item.name}</Text>
+          <Text style={styles.listType}>{item.type}</Text>
+        </View>
+      </View>
+    );
+  };
+
+  const renderCategory = ({ item }: { item: Category }) => {
+    return (
+      <View style={styles.categoryCard}>
+        <Text style={styles.categoryTitle}>{item.title}</Text>
+
+        {/* Card bhitra vertical scroll */}
+        <ScrollView
+          nestedScrollEnabled
+          showsVerticalScrollIndicator={false}
+          style={styles.innerScroll}
+        >
+          {viewMode === "card" ? (
+            <View style={styles.flexContainer}>
+              {item.items.map(renderPokemonCard)}
+            </View>
+          ) : (
+            <View>{item.items.map(renderPokemonList)}</View>
+          )}
+        </ScrollView>
+      </View>
+    );
+  };
   return (
-    <SafeAreaView style={Categoriesstyles.container} edges={["right", "left", "bottom"]}>
-      <SafeHeader title="Pokédex Tracker" showDrawerButton={true} />
+    
+    <SafeAreaView style={styles.container}>
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>Pokédex Tracker</Text>  
+           
 
-      {/* Toggle View Controller Button */}
-      <View style={Categoriesstyles.toggleRow}>
-        <Text style={Categoriesstyles.viewStateText}>
-          Current View: <Text style={{ fontWeight: "bold", color: "#e74c3c" }}>{viewMode.toUpperCase()}</Text>
+      </View> <SafeHeader title="Pokédex Tracker" showDrawerButton={true} />
+      <View style={styles.toggleRow}>
+        <Text style={styles.currentView}>
+          Current View: {viewMode.toUpperCase()}
         </Text>
+
         <TouchableOpacity
-          style={Categoriesstyles.toggleButton}
+          style={styles.toggleButton}
           onPress={() => setViewMode(viewMode === "card" ? "list" : "card")}
         >
-          <Text style={Categoriesstyles.toggleButtonText}>
-            Switch to {viewMode === "card" ? "List View" : "Card View"}
+          <Text style={styles.toggleButtonText}>
+            Switch to {viewMode === "card" ? "List" : "Card"}
           </Text>
         </TouchableOpacity>
       </View>
 
-      {/* Outer List view container */}
       <FlatList
         data={CATEGORIES}
-        renderItem={renderCategoryRow}
         keyExtractor={(item) => item.id.toString()}
-        showsVerticalScrollIndicator={true}
-        contentContainerStyle={Categoriesstyles.verticalListPadding}
+        renderItem={renderCategory}
+        contentContainerStyle={{ paddingBottom: 30 }}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={["#ff4757"]}
+          />
+        }
       />
     </SafeAreaView>
   );
 };
 
 export default withDrawer(CategoryScreen);
+
+

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, StyleSheet, Text, KeyboardAvoidingView, Platform, Modal, Button as RNButton } from "react-native";
+import { View, StyleSheet, Text, KeyboardAvoidingView, Platform, Modal, Button as RNButton, Pressable } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import SafeHeader from "../components/Header/SafeHeader"; 
 import { COLORS, SPACING, TYPOGRAPHY } from "../styles/index";
@@ -39,10 +39,14 @@ const ProfileScreen: React.FC = () => {
 
       <Modal
         visible={modalVisible}
-        animationType="slide"
+        animationType="fade"
         transparent={true}
         onRequestClose={() => setModalVisible(false)} 
       >
+        <Pressable 
+    style={styles.modalOverlay} 
+    onPress={() => setModalVisible(false)} // बाहिर क्लिक गर्दा मोडाल क्लोज हुन्छ
+  ></Pressable>
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>Profile Details</Text>
@@ -61,9 +65,30 @@ const ProfileScreen: React.FC = () => {
           </View>
         </View>
       </Modal>
+
+      <View style={styles.Pressablecontainer}>
+      <Pressable
+     
+        style={({ pressed }) => [
+          styles.Pressbutton,
+          { backgroundColor: pressed ? '#004080' : '#007AFF' }
+        ]}
+        onPress={() => console.log('Button Pressed!')}
+        onLongPress={() => console.log('Long Pressed (0.5s+)!')}
+        delayLongPress={800} 
+        hitSlop={10}
+        onHoverIn={() => console.log('Hovered In!')}
+        onHoverOut={() => console.log('Hovered Out!')}>
+
+        {({ pressed }) => (
+          <Text style={styles.text}>
+            {pressed ? 'Holding...' : 'Press Me'}
+          </Text>
+        )}
+      </Pressable>
+    </View>
     </>
   );
 };
-
 
 export default withDrawer(ProfileScreen);

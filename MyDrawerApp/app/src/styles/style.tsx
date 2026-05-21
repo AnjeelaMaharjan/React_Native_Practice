@@ -1,132 +1,178 @@
-import { StyleSheet } from "react-native";
-import { COLORS, SPACING, TYPOGRAPHY } from "./index";
 
-    export const Categoriesstyles = StyleSheet.create({
-      container: {
-        flex: 1,
-        backgroundColor: "#f8f9fa",
-      },
-      toggleRow: {
-        flexDirection: "row",
-        justifyContent: "space-between",
-        alignItems: "center",
-        paddingHorizontal: 16,
-        paddingVertical: 12,
-        backgroundColor: "#ffffff",
-        borderBottomWidth: 1,
-        borderColor: "#eef2f3",
-      },
-      viewStateText: {
-        fontSize: 14,
-        color: "#7f8c8d",
-      },
-      toggleButton: {
-        backgroundColor: "#3498db",
-        paddingHorizontal: 12,
-        paddingVertical: 6,
-        borderRadius: 8,
-      },
-      toggleButtonText: {
-        color: "#ffffff",
-        fontSize: 12,
-        fontWeight: "600",
-      },
-      verticalListPadding: {
-        paddingVertical: 10,
-      },
-      horizontalPadding: {
-        paddingLeft: 16,
-        paddingRight: 6,
-      },
-       VerticalPadding: {
-        paddingLeft: 16,
-        paddingRight: 6,
-      },
-      listContainerPadding: {
-        paddingHorizontal: 16,
-      },
-      categoryContainer: {
-        marginBottom: 20,
-      },
-      categoryTitle: {
-        fontSize: 18,
-        fontWeight: "700",
-        color: "#2c3e50",
-        marginBottom: 10,
-        paddingHorizontal: 16,
-      },
-      /* --- CARD VIEW STYLES --- */
-      card: {
-        width: 140,
-        height: 190,
-        backgroundColor: "#ffffff",
-        borderRadius: 12,
-        marginRight: 12,
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.05,
-        shadowRadius: 4,
-        elevation: 2,
-        borderWidth: 1,
-        borderColor: "#eef2f3",
-        overflow: "hidden",
-      },
-      imageContainer: {
-        flex: 5,
-        backgroundColor: "#fdfefe",
-        justifyContent: "center",
-        alignItems: "center",
-        padding: 8,
-      },
-      pokemonImage: {
-        width: "100%",
-        height: "100%",
-      },
-      cardFooter: {
-        flex: 4,
-        paddingHorizontal: 8,
-        justifyContent: "center",
-      },
-      itemName: {
-        fontSize: 14,
-        fontWeight: "600",
-        color: "#2c3e50",
-        marginBottom: 2,
-      },
-      itemType: {
-        fontSize: 11,
-        color: "#95a5a6",
-      },
-      /* --- LIST VIEW STYLES --- */
-      listItem: {
-        flexDirection: "row",
-        backgroundColor: "#ffffff",
-        padding: 12,
-        borderRadius: 10,
-        marginBottom: 8,
-        alignItems: "center",
-        borderWidth: 1,
-        borderColor: "#eef2f3",
-      },
-      listImage: {
-        width: 50,
-        height: 50,
-        marginRight: 14,
-      },
-      listTextContainer: {
-        flex: 1,
-      },
-      listNameText: {
-        fontSize: 16,
-        fontWeight: "600",
-        color: "#2c3e50",
-      },
-      listTypeText: {
-        fontSize: 13,
-        color: "#7f8c8d",
-        marginTop: 2,
-      },
-    
+import { COLORS, SPACING, TYPOGRAPHY } from "./index";
+import { StyleSheet, Dimensions } from 'react-native';
+import CategoryScreen from "../Screens/Categories";
+
+
+const { width } = Dimensions.get("window");
+export const Categorystyles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#f4f6f8",
+  },
+
+  header: {
+    padding: 18,
+    alignItems: "center",
+    backgroundColor: "#ff4757",
+  },
+
+  headerTitle: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "#fff",
+  },
+
+  toggleRow: {
+    paddingHorizontal: 15,
+    paddingVertical: 12,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+
+  currentView: {
+    fontSize: 15,
+    fontWeight: "600",
+    color: "#2f3542",
+  },
+
+  toggleButton: {
+    backgroundColor: "#ff4757",
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    borderRadius: 10,
+  },
+
+  toggleButtonText: {
+    color: "#fff",
+    fontWeight: "600",
+  },
+
+  categoryCard: {
+    backgroundColor: "#fff",
+    marginHorizontal: 15,
+    marginBottom: 20,
+    borderRadius: 18,
+    padding: 15,
+    elevation: 4,
+  },
+
+  categoryTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
+    marginBottom: 15,
+    color: "#2f3542",
+  },
+
+  innerScroll: {
+    maxHeight: 420,
+  },
+
+  flexContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "space-between",
+  },
+
+  card: {
+    width: (width - 70) / 2,
+    backgroundColor: "#f8f9fa",
+    borderRadius: 16,
+    padding: 12,
+    marginBottom: 15,
+    alignItems: "center",
+  },
+
+  imageWrapper: {
+    width: "100%",
+    height: 110,
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 10,
+  },
+
+  image: {
+    width: 90,
+    height: 90,
+  },
+
+  name: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#2f3542",
+  },
+
+  type: {
+    marginTop: 5,
+    fontSize: 13,
+    color: "#747d8c",
+    textAlign: "center",
+  },
+
+  listItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#f8f9fa",
+    padding: 12,
+    borderRadius: 14,
+    marginBottom: 12,
+  },
+
+  listImage: {
+    width: 70,
+    height: 70,
+    marginRight: 15,
+  },
+
+  listName: {
+    fontSize: 17,
+    fontWeight: "bold",
+    color: "#2f3542",
+  },
+
+  listType: {
+    marginTop: 5,
+    color: "#747d8c",
+    fontSize: 14,
+  },
+  favIcon: {
+  position: "absolute",
+  top: 8,
+  right: 10,
+  fontSize: 18,
+  height:25,
+  width:25
+},
+
+grid: {
+  justifyContent: "space-between",
+},
+
+filterRow: {
+  flexDirection: "row",
+  justifyContent: "space-around",
+  paddingVertical: 10,
+},
+
+filterBtn: {
+  fontSize: 16,
+  color: "#666",
+  padding: 6,
+},
+
+activeFilter: {
+  color: "#ff4757",
+  fontWeight: "bold",
+  borderBottomWidth: 2,
+  borderColor: "#ff4757",
+},
+favoriteButton: {
+  position: "absolute",
+  top: 10,
+  right: 10,
+  zIndex: 999,
+},
 });
 
 export const PokemonDetailstyles = StyleSheet.create({
@@ -253,5 +299,12 @@ export const Profilestyles = StyleSheet.create({
   },
   modalButtonContainer: {
     marginTop: SPACING.sm,
-  }
+  },
+  Pressablecontainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  Pressbutton: {
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 8,
+  },
+  text: { color: 'white', fontWeight: 'bold', fontSize: 16 }
 });
