@@ -4,11 +4,15 @@
     "strict": true,
     "paths": {
       "@/*": [
-        "./src/*", 
-      ],
-      
+        "./src/*"
+      ]
     }
   },
+  "exclude": [
+    "node_modules",
+    "app-example",
+    "app/src"
+  ],
   "include": [
     "**/*.ts",
     "**/*.tsx",
