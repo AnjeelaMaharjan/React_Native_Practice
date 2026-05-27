@@ -1,10 +1,10 @@
 import React, { useState, useCallback } from 'react';
-import { View, Text, Image, FlatList, TouchableOpacity, RefreshControl, StyleSheet, ScrollView, Platform } from 'react-native';
+import { View, Text, Image, FlatList, TouchableOpacity, RefreshControl, StyleSheet, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTheme } from '@/context/ThemeContext';
 import { usePokemon } from '@/features/pokemon/hooks/usePokemon';
 import { Pokemon, PokemonCategory } from '@/features/pokemon/types';
-import Header from '@/components/organisms/Header';
+import { Header } from '@/components/organisms/Header';
 import { SPACING, BORDER_RADIUS } from '@/styles/spacing';
 
 /**

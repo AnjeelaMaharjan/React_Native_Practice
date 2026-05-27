@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, StyleSheet, SectionList, Text } from 'react-native';
-import Header from '@/components/organisms/Header';
+import { Header } from '@/components/organisms/Header';
 import { useTheme } from '@/context/ThemeContext';
 import { SPACING, BORDER_RADIUS } from '@/styles/spacing';
 

@@ -9,7 +9,7 @@ import { Platform } from 'react-native';
  * Implements Expo Router tabs with styling matching current Theme mode.
  */
 export default function TabsLayout() {
-  const { colors, isDark } = useTheme();
+  const { colors } = useTheme();
 
   return (
     <Tabs

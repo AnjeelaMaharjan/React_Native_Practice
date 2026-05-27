@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, Text, KeyboardAvoidingView, Platform, Modal, TouchableOpacity } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import Header from '@/components/organisms/Header';
+import { Header } from '@/components/organisms/Header';
 import { useTheme } from '@/context/ThemeContext';
 import { SPACING, BORDER_RADIUS } from '@/styles/spacing';
 import { Ionicons } from '@expo/vector-icons';
