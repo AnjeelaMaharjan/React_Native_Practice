@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { useCounter } from '@/features/counter/hooks/useCounter';
 import { useTheme } from '@/context/ThemeContext';
-import Header from '@/components/organisms/Header';
+import { Header } from '@/components/organisms/Header';
 import { SPACING, BORDER_RADIUS } from '@/styles/spacing';
 
 /**
@@ -10,8 +10,12 @@ import { SPACING, BORDER_RADIUS } from '@/styles/spacing';
  * Consumes state from global CounterProvider and logs actions directly in dev log window.
  */
 export const CounterScreen = () => {
-  const { count, message, lastAction, timestamp, increment, decrement, reset } = useCounter();
+  const { count, message, lastAction, timestamp, increment, decrement, reset, setCount } = useCounter();
   const { colors, isDark } = useTheme();
+
+  const multiplyByTwo = () => {
+    setCount(count * 2);
+  };
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
@@ -34,6 +38,14 @@ export const CounterScreen = () => {
 
           {/* Operation Controls */}
           <View style={styles.buttonRow}>
+            {/* Multiply Button */}
+            <TouchableOpacity
+              style={[styles.btn, { backgroundColor: '#3B82F6', borderRadius: BORDER_RADIUS.md }]}
+              onPress={multiplyByTwo}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.btnText}>×2</Text>
+            </TouchableOpacity>
             <TouchableOpacity
               style={[styles.btn, styles.btnDanger, { borderRadius: BORDER_RADIUS.md }]}
               onPress={decrement}
@@ -89,10 +101,13 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  scrollContent: {
-    padding: SPACING.md,
+  scrollContent: { padding: SPACING.md, gap: SPACING.md, paddingBottom: 40 },
+  twoCardWrapper: {
+    flexGrow: 1,
+    justifyContent: 'space-between',
+    minHeight: '100%',
+    paddingVertical: SPACING.md,
     gap: SPACING.md,
-    paddingBottom: 40,
   },
   displayCard: {
     padding: SPACING.lg,
