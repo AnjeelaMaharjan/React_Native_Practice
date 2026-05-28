@@ -8,7 +8,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
-import { COLORS, SPACING, BORDER_RADIUS, TYPOGRAPHY } from '@/styles';
+import { COLORS,ThemeSwitchstyles as styles } from '@/styles';
 import { useTheme } from '@/context/ThemeContext';
 
 // ---------------------------------------------------------------------------
@@ -65,26 +65,6 @@ const ThemeSwitch: React.FC = () => {
     </TouchableOpacity>
   );
 };
-
-// ---------------------------------------------------------------------------
-// Styles
-// ---------------------------------------------------------------------------
-
-const styles = StyleSheet.create({
-  pill: {
-    borderRadius: BORDER_RADIUS.full,
-    paddingVertical: SPACING.xs + 2,
-    paddingHorizontal: SPACING.md,
-  },
-  inner: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: SPACING.xs,
-  },
-  label: {
-    ...TYPOGRAPHY.smallMedium,
-  },
-});
 
 export { ThemeSwitch };
 export default ThemeSwitch;
