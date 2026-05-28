@@ -3,14 +3,15 @@ import {
   TouchableOpacity,
   Text,
   ActivityIndicator,
-  StyleSheet,
+
   type ViewStyle,
   type TextStyle,
   View,
 } from 'react-native';
 
-import { COLORS, SPACING, BORDER_RADIUS, TYPOGRAPHY } from '@/styles';
+import { COLORS, SPACING, TYPOGRAPHY } from '@/styles';
 import { useTheme } from '@/context/ThemeContext';
+import { buttonstyles as styles} from '@/styles/styles';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -188,28 +189,28 @@ const Button: React.FC<ButtonProps> = ({
 // Styles
 // ---------------------------------------------------------------------------
 
-const styles = StyleSheet.create({
-  base: {
-    borderRadius: BORDER_RADIUS.md,
-    alignItems: 'center',
-    justifyContent: 'center',
-    flexDirection: 'row',
-  },
-  disabled: {
-    opacity: 0.5,
-  },
-  content: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  icon: {
-    marginRight: SPACING.xs,
-  },
-  loader: {
-    marginVertical: 2,
-  },
-});
+// const styles = StyleSheet.create({
+//   base: {
+//     borderRadius: BORDER_RADIUS.md,
+//     alignItems: 'center',
+//     justifyContent: 'center',
+//     flexDirection: 'row',
+//   },
+//   disabled: {
+//     opacity: 0.5,
+//   },
+//   content: {
+//     flexDirection: 'row',
+//     alignItems: 'center',
+//     justifyContent: 'center',
+//   },
+//   icon: {
+//     marginRight: SPACING.xs,
+//   },
+//   loader: {
+//     marginVertical: 2,
+//   },
+// });
 
 export { Button };
 export default Button;

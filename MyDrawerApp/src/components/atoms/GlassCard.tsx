@@ -3,6 +3,7 @@ import { View, StyleSheet, type ViewStyle } from 'react-native';
 
 import { SPACING, BORDER_RADIUS } from '@/styles';
 import { useTheme } from '@/context/ThemeContext';
+import { GlassCardstyles as styles } from '@/styles/styles';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -74,22 +75,5 @@ const GlassCard: React.FC<GlassCardProps> = ({
   );
 };
 
-// ---------------------------------------------------------------------------
-// Styles
-// ---------------------------------------------------------------------------
-
-const styles = StyleSheet.create({
-  container: {
-    borderRadius: BORDER_RADIUS.xl,
-    borderWidth: 1,
-    padding: SPACING.lg,
-    // Subtle shadow / elevation
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 1, // opacity handled via shadowColor rgba
-    shadowRadius: 12,
-    elevation: 4,
-  },
-});
-
-export { GlassCard };
+export {GlassCard} ;
 export default GlassCard;
