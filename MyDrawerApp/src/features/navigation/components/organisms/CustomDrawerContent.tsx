@@ -5,7 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme } from '@/context/ThemeContext';
 import { useDrawerContext } from '../../context/DrawerContext';
-import { SPACING, BORDER_RADIUS } from '@/styles/spacing';
+import { SPACING, BORDER_RADIUS, CustomDrawerContentstyles as styles, CustomDrawerContentstyles } from '@/styles';
 
 interface MenuItem {
   id: string;
@@ -58,12 +58,12 @@ export const CustomDrawerContent: React.FC<CustomDrawerContentProps> = ({ onClos
   };
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.card }]} edges={['top', 'bottom']}>
+    <SafeAreaView style={[CustomDrawerContentstyles.container, { backgroundColor: colors.card }]} edges={['top', 'bottom']}>
       {/* Drawer Header */}
       <View style={[styles.header, { borderBottomColor: colors.border }]}>
         <View style={styles.headerTitleRow}>
-          <Ionicons name="sparkles" size={24} color={colors.primary} />
-          <Text style={[styles.headerTitle, { color: colors.text }]}>Auxfin Dev</Text>
+          <Ionicons name="logo-android" size={24} color={colors.primary} />
+          <Text style={{ color: colors.text }}>My DrawerApp</Text>
         </View>
         <Text style={styles.headerSubtitle}>Internship Project</Text>
       </View>
@@ -118,101 +118,56 @@ export const CustomDrawerContent: React.FC<CustomDrawerContentProps> = ({ onClos
           />
         </View>
 
-        {/* Toggle 2: Drawer Orientation Side */}
-        <View style={styles.controlRow}>
-          <View style={styles.controlLabelGroup}>
-            <Ionicons name="swap-horizontal-outline" size={18} color={colors.textSecondary} />
-            <Text style={[styles.controlLabel, { color: colors.text }]}>Drawer Right</Text>
+        {/* Select Drawer Placement Position */}
+        <View style={{ marginTop: SPACING.xs }}>
+          <View style={[styles.controlLabelGroup, { marginBottom: SPACING.xs }]}>
+            <Ionicons name="compass-outline" size={18} color={colors.textSecondary} />
+            <Text style={[styles.controlLabel, { color: colors.text }]}>Drawer Position</Text>
           </View>
-          <Switch
-            value={side === 'right'}
-            onValueChange={(checked) => setDrawerSide(checked ? 'right' : 'left')}
-            trackColor={{ false: '#767577', true: colors.primary }}
-            thumbColor={side === 'right' ? '#4CAF50' : '#F4F3F4'}
-          />
+          <View style={{ flexDirection: 'row', gap: SPACING.xs, flexWrap: 'wrap', marginTop: 4 }}>
+            {(['left', 'right', 'top', 'bottom'] as const).map((pos) => {
+              const active = side === pos;
+              return (
+                <TouchableOpacity
+                  key={pos}
+                  onPress={() => setDrawerSide(pos)}
+                  style={{
+                    flex: 1,
+                    minWidth: 60,
+                    paddingVertical: SPACING.xs + 2,
+                    paddingHorizontal: SPACING.sm,
+                    borderRadius: BORDER_RADIUS.md,
+                    borderWidth: 1,
+                    borderColor: active ? colors.primary : colors.border,
+                    backgroundColor: active ? colors.primary : 'transparent',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                  activeOpacity={0.8}
+                >
+                  <Text
+                    style={{
+                      fontSize: 12,
+                      fontWeight: '700',
+                      color: active ? '#ffffff' : colors.text,
+                      textTransform: 'capitalize',
+                    }}
+                  >
+                    {pos}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
         </View>
       </View>
 
       {/* Footer Branding */}
       <View style={styles.footer}>
-        <Text style={styles.versionText}>v1.0.0 (Production-Ready)</Text>
+        <Text style={styles.versionText}>This is footer {new Date().toLocaleDateString()} </Text>
       </View>
     </SafeAreaView>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  header: {
-    padding: SPACING.lg,
-    borderBottomWidth: 1,
-  },
-  headerTitleRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: SPACING.xs,
-  },
-  headerTitle: {
-    fontSize: 22,
-    fontWeight: '800',
-    letterSpacing: -0.5,
-  },
-  headerSubtitle: {
-    fontSize: 12,
-    color: '#888',
-    marginTop: 4,
-    textTransform: 'uppercase',
-    letterSpacing: 1.5,
-    fontWeight: '600',
-  },
-  menuScroll: {
-    flex: 1,
-  },
-  menuContent: {
-    padding: SPACING.md,
-    gap: SPACING.xs,
-  },
-  menuItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: SPACING.md,
-    paddingHorizontal: SPACING.md,
-    gap: SPACING.md,
-  },
-  menuItemText: {
-    fontSize: 16,
-    fontWeight: '500',
-  },
-  settingsSection: {
-    padding: SPACING.md,
-    borderTopWidth: 1,
-    gap: SPACING.sm,
-  },
-  controlRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: SPACING.sm,
-  },
-  controlLabelGroup: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: SPACING.sm,
-  },
-  controlLabel: {
-    fontSize: 14,
-    fontWeight: '500',
-  },
-  footer: {
-    padding: SPACING.md,
-    alignItems: 'center',
-  },
-  versionText: {
-    fontSize: 11,
-    color: '#666',
-  },
-});
 
 export default CustomDrawerContent;
