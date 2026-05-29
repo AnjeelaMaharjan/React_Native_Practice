@@ -1,6 +1,6 @@
 import React, { createContext, useState, useContext } from 'react';
 
-export type DrawerSide = 'left' | 'right';
+export type DrawerSide = 'left' | 'right' | 'top' | 'bottom';
 
 export interface DrawerContextType {
   isOpen: boolean;
