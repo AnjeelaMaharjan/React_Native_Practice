@@ -15,7 +15,7 @@ export const PokedexScreen = () => {
   const router = useRouter();
   const { colors, isDark } = useTheme();
   const { getCategories } = usePokemon();
-  
+
   const [viewMode, setViewMode] = useState<'card' | 'list'>('card');
   const [refreshing, setRefreshing] = useState<boolean>(false);
 
@@ -83,14 +83,16 @@ export const PokedexScreen = () => {
     return (
       <View style={[styles.categorySection, { borderBottomColor: colors.border }]}>
         <Text style={[styles.categoryTitle, { color: colors.text }]}>{item.title}</Text>
-        
+
         {viewMode === 'card' ? (
           <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.horizontalScrollContent}
+            style={styles.cardScrollContainer}
+            nestedScrollEnabled={true}
+            showsVerticalScrollIndicator={true}
           >
-            {item.items.map(renderPokemonCard)}
+            <View style={styles.cardGrid}>
+              {item.items.map(renderPokemonCard)}
+            </View>
           </ScrollView>
         ) : (
           <View style={styles.verticalListContent}>
@@ -175,17 +177,21 @@ const styles = StyleSheet.create({
     marginBottom: SPACING.sm,
     letterSpacing: -0.3,
   },
-  horizontalScrollContent: {
-    paddingLeft: SPACING.md,
-    paddingRight: SPACING.sm,
-    gap: SPACING.md,
+  cardScrollContainer: {
+    maxHeight: 280,
+  },
+  cardGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    paddingHorizontal: SPACING.sm,
+    gap: SPACING.sm,
   },
   verticalListContent: {
     paddingHorizontal: SPACING.md,
     gap: SPACING.xs,
   },
   card: {
-    width: 140,
+    width: '47.5%',
     borderRadius: BORDER_RADIUS.lg,
     padding: SPACING.sm,
     elevation: 3,

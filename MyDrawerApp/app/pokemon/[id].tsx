@@ -28,7 +28,7 @@ export const PokemonDetailScreen = () => {
           <Ionicons name="alert-circle-outline" size={60} color={colors.primary} />
           <Text style={[styles.errorTitle, { color: colors.text }]}>Pokémon Not Found</Text>
           <Text style={[styles.errorSubtitle, { color: colors.textSecondary }]}>
-            We couldn't resolve details for ID: "{id}"
+            We couldnot resolve details for ID: {"{id}"}
           </Text>
           <TouchableOpacity
             style={[styles.backButton, { backgroundColor: colors.primary }]}
@@ -66,7 +66,7 @@ export const PokemonDetailScreen = () => {
           onPress={() => router.back()}
           activeOpacity={0.7}
         >
-          <Ionicons name="arrow-back" size={22} color={colors.text} />
+          <Ionicons name="arrow-back-circle" size={22} color={colors.text} />
         </TouchableOpacity>
         <Text style={[styles.headerTitle, { color: colors.text }]}>Pokémon Profile</Text>
         <View style={{ width: 40 }} /> {/* balance center */}

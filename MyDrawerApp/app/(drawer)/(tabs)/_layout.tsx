@@ -88,6 +88,20 @@ export default function TabsLayout() {
           ),
         }}
       />
+        <Tabs.Screen
+        name="try"
+        options={{
+          title: 'try',
+          tabBarIcon: ({ color, focused }) => (
+            <Ionicons
+              name={focused ? 'albums' : 'person-outline'}
+              size={24}
+              color={color}
+            />
+          ),
+        }}
+      />
     </Tabs>
+    
   );
 }
