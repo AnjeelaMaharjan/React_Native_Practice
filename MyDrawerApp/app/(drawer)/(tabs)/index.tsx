@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { View, Text, Image, FlatList, TouchableOpacity, RefreshControl, StyleSheet, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTheme } from '@/context/ThemeContext';
@@ -6,20 +6,31 @@ import { usePokemon } from '@/features/pokemon/hooks/usePokemon';
 import { Pokemon, PokemonCategory } from '@/features/pokemon/types';
 import { Header } from '@/components/organisms/Header';
 import { SPACING, BORDER_RADIUS } from '@/styles/spacing';
+import { Picker } from '@react-native-picker/picker';
 
-/**
- * Screen: Pokedex Tracker (Home).
- * Displays nested categories of Pokemon with toggleable list/card rendering modes.
- */
 export const PokedexScreen = () => {
   const router = useRouter();
   const { colors, isDark } = useTheme();
-  const { getCategories } = usePokemon();
+  const { getCategories, getTypes, selectedType, setSelectedType, filteredPokemon } = usePokemon();
 
   const [viewMode, setViewMode] = useState<'card' | 'list'>('card');
   const [refreshing, setRefreshing] = useState<boolean>(false);
 
   const categories = getCategories();
+  
+  // Filter categories to show only pokemon matching the selected type
+  const filteredCategories = useMemo(() => {
+    if (selectedType === 'All') return categories;
+    
+    return categories
+      .map((cat) => ({
+        ...cat,
+        items: cat.items.filter((pokemon) => filteredPokemon.some((p) => p.id === pokemon.id)),
+      }))
+      .filter((cat) => cat.items.length > 0); // Hide empty categories
+  }, [categories, selectedType, filteredPokemon]);
+
+  
 
   const handleRefresh = useCallback(() => {
     setRefreshing(true);
@@ -107,40 +118,61 @@ export const PokedexScreen = () => {
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <Header title="Pokédex Tracker" />
 
-      {/* Control panel for grid list configurations */}
+      {/* Control panel with type filter dropdown */}
       <View style={[styles.controlBar, { borderBottomColor: colors.border }]}>
-        <Text style={[styles.modeStatusText, { color: colors.textSecondary }]}>
-          Layout: <Text style={{ color: colors.primary, fontWeight: '700' }}>{viewMode.toUpperCase()}</Text>
-        </Text>
+        <View style={[styles.pickerWrapper, { backgroundColor: colors.card }]}>
+          <Picker
+            selectedValue={selectedType}
+            onValueChange={(value) => setSelectedType(String(value))}
+            mode="dropdown"
+            style={[styles.picker, { color: colors.text }]}
+          >
+            {getTypes().map((t) => (
+              <Picker.Item label={t} value={t} key={t} />
+            ))}
+          </Picker>
+        </View>
+
+        <View style={styles.spacer} />
+
         <TouchableOpacity
           style={[styles.toggleBtn, { borderColor: colors.primary }]}
           onPress={() => setViewMode((prev) => (prev === 'card' ? 'list' : 'card'))}
           activeOpacity={0.7}
         >
           <Text style={[styles.toggleBtnText, { color: colors.primary }]}>
-            Toggle to {viewMode === 'card' ? 'List' : 'Grid'}
+            {viewMode === 'card' ? 'List' : 'Grid'}
           </Text>
         </TouchableOpacity>
       </View>
 
-      {/* Categories Scroll Layout */}
-      <FlatList
-        data={categories}
-        keyExtractor={(item) => item.id.toString()}
-        renderItem={renderCategoryRow}
-        contentContainerStyle={styles.listContainer}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} colors={[colors.primary]} />
-        }
-      />
+      {/* Categories Scroll Layout - Filtered */}
+      {filteredCategories.length > 0 ? (
+        <FlatList
+          data={filteredCategories}
+          keyExtractor={(item) => item.id.toString()}
+          renderItem={renderCategoryRow}
+          contentContainerStyle={styles.listContainer}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} colors={[colors.primary]} />
+          }
+        />
+      ) : (
+        <View style={[styles.emptyState, { backgroundColor: colors.background }]}>
+          <Text style={[styles.emptyText, { color: colors.textSecondary }]}>No Pokemon found for type: {selectedType}</Text>
+        </View>
+      )}
     </View>
   );
 };
 
 const styles = StyleSheet.create({
+  // ===== Root Container =====
   container: {
     flex: 1,
   },
+
+  // ===== Control Bar & Filter =====
   controlBar: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -149,9 +181,18 @@ const styles = StyleSheet.create({
     paddingVertical: SPACING.sm,
     borderBottomWidth: 1,
   },
-  modeStatusText: {
-    fontSize: 14,
-    fontWeight: '500',
+  pickerWrapper: {
+    flex: 1.5,
+    borderRadius: BORDER_RADIUS.md,
+    overflow: 'hidden',
+    marginRight: SPACING.sm,
+  },
+  picker: {
+    height: 44,
+    width: '10%',
+  },
+  spacer: {
+    flex: 0.3,
   },
   toggleBtn: {
     borderWidth: 1,
@@ -163,9 +204,13 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '700',
   },
+
+  // ===== List Container =====
   listContainer: {
     paddingBottom: 40,
   },
+
+  // ===== Category Section =====
   categorySection: {
     paddingVertical: SPACING.md,
     borderBottomWidth: 1,
@@ -177,6 +222,8 @@ const styles = StyleSheet.create({
     marginBottom: SPACING.sm,
     letterSpacing: -0.3,
   },
+
+  // ===== Card View =====
   cardScrollContainer: {
     maxHeight: 280,
   },
@@ -185,10 +232,6 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     paddingHorizontal: SPACING.sm,
     gap: SPACING.sm,
-  },
-  verticalListContent: {
-    paddingHorizontal: SPACING.md,
-    gap: SPACING.xs,
   },
   card: {
     width: '47.5%',
@@ -221,6 +264,12 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 2,
   },
+
+  // ===== List View =====
+  verticalListContent: {
+    paddingHorizontal: SPACING.md,
+    gap: SPACING.xs,
+  },
   listItem: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -247,6 +296,19 @@ const styles = StyleSheet.create({
   },
   chevron: {
     opacity: 0.5,
+  },
+
+  // ===== Empty State =====
+  emptyState: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: SPACING.lg,
+  },
+  emptyText: {
+    fontSize: 16,
+    textAlign: 'center',
+    fontWeight: '500',
   },
 });
 
