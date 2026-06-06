@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Switch } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, Switch } from 'react-native';
 import { useRouter, useSegments } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -20,6 +20,8 @@ const MENU_ITEMS: MenuItem[] = [
   { id: 'camera', label: 'Camera & Storage', route: '/(drawer)/(tabs)/camera', icon: 'camera-outline' },
   { id: 'profile', label: 'My Profile', route: '/(drawer)/(tabs)/profile', icon: 'person-outline' },
   { id: 'settings', label: 'System Settings', route: '/(drawer)/settings', icon: 'settings-outline' },
+  { id: 'CreatePost', label: 'Create Post', route: '/(drawer)/CreatePost', icon: 'create-outline'},
+  { id: 'GraphQLExample', label: 'GraphQL Example', route: '/(drawer)/(tabs)/GraphQLExample', icon: 'git-network-outline' },
 ];
 
 interface CustomDrawerContentProps {
@@ -49,6 +51,9 @@ export const CustomDrawerContent: React.FC<CustomDrawerContentProps> = ({ onClos
     if (route.includes('camera')) return activeSegments.includes('camera');
     if (route.includes('profile')) return activeSegments.includes('profile');
     if (route.includes('settings')) return activeSegments.includes('settings');
+    if (route.includes('GraphQLExample')) return activeSegments.includes('GraphQLExample');
+    if (route.includes('CreatePost')) return activeSegments.includes('CreatePost');
+    if (route.includes('pokemon')) return activeSegments.includes('pokemon');
     return false;
   };
 

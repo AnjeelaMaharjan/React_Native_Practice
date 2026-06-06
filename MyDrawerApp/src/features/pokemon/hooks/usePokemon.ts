@@ -1,3 +1,4 @@
+import { useMemo, useState } from 'react';
 import { Pokemon, PokemonCategory } from '../types';
 
 // ==========================================
@@ -192,6 +193,23 @@ const CATEGORIES: PokemonCategory[] = [
  * Exposes methods to search, list, and filter Pokedex entities.
  */
 export const usePokemon = () => {
+  const [selectedType, setSelectedType] = useState<string>('All');
+
+  const getTypes = (): string[] => {
+    const splitter = /(?:\s*[·•\/,_]\s*)/; // splits on middle dot, bullet, slash, comma
+    const allTypes = POKEMON_DATA.flatMap((p) => p.type.split(splitter).map((t) => t.trim()).filter(Boolean));
+    const unique = Array.from(new Set(allTypes)).sort((a, b) => a.localeCompare(b));
+    return ['All', ...unique];
+  };
+
+  const filteredPokemon = useMemo(() => {
+    if (!selectedType || selectedType === 'All') return POKEMON_DATA;
+    const splitter = /(?:\s*[·•\/,_]\s*)/;
+    return POKEMON_DATA.filter((p) => {
+      const types = p.type.split(splitter).map((t) => t.trim().toLowerCase());
+      return types.includes(selectedType.toLowerCase());
+    });
+  }, [selectedType]);
   const getCategories = (): PokemonCategory[] => {
     return CATEGORIES;
   };
@@ -210,6 +228,11 @@ export const usePokemon = () => {
     getPokemonById,
     searchPokemon,
     allPokemon: POKEMON_DATA,
+    // Type filter helpers for dropdown UI
+    getTypes,
+    selectedType,
+    setSelectedType,
+    filteredPokemon,
   };
 };
 export default usePokemon;

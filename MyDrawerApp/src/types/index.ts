@@ -1,5 +1,4 @@
 /**
- * Global TypeScript type definitions for the Auxfin internship project.
  * Central repository for shared types used across features.
  */
 
@@ -34,8 +33,8 @@ export interface AppError {
 
 /** Storage key enum for AsyncStorage consistency */
 export enum StorageKeys {
-  THEME_PREFERENCE = '@auxfin_theme_preference',
-  CAPTURED_PHOTO = '@auxfin_pokedex_captured_photo',
-  USER_PROFILE = '@auxfin_user_profile',
-  ONBOARDING_COMPLETE = '@auxfin_onboarding_complete',
+  THEME_PREFERENCE = '@theme_preference',
+  CAPTURED_PHOTO = '@captured_photo',
+  USER_PROFILE = '@user_profile',
+  ONBOARDING_COMPLETE = '@onboarding_complete',
 }

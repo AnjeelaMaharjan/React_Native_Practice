@@ -1,50 +1,61 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { logger } from '@/utils/logger';
 
-const PHOTO_STORAGE_KEY = '@auxfin_pokedex_captured_photo';
+export interface CapturedPhoto {
+  id: string;
+  uri: string;
+  timestamp: string;
+  notes?: string;
+}
+
+const PHOTOS_STORAGE_KEY = '@captured_photo_list';
 
 /**
  * Service: Camera Storage.
  * Encapsulates read/write operations for React Native AsyncStorage.
- * Prevents side-effects in component render cycles.
+ * Supports storing, loading, and clearing an array of captured photos.
  */
 export const storageService = {
   /**
-   * Save a file URI or base64 photo string locally.
+   * Save the entire array of captured photo objects.
    */
-  saveCapturedPhoto: async (uri: string): Promise<void> => {
+  savePhotos: async (photos: CapturedPhoto[]): Promise<void> => {
     try {
-      await AsyncStorage.setItem(PHOTO_STORAGE_KEY, uri);
-      logger.info('[StorageService] Successfully saved photo URI to local storage:', uri);
+      await AsyncStorage.setItem(PHOTOS_STORAGE_KEY, JSON.stringify(photos));
+      logger.info('[StorageService] Successfully saved photo list, size:', photos.length);
     } catch (error) {
-      logger.error('[StorageService] Error saving photo URI to local storage:', error);
+      logger.error('[StorageService] Error saving photo list to local storage:', error);
       throw error;
     }
   },
 
   /**
-   * Fetch the last saved photo URI.
+   * Fetch the list of saved photo objects.
    */
-  getCapturedPhoto: async (): Promise<string | null> => {
+  getPhotos: async (): Promise<CapturedPhoto[]> => {
     try {
-      const uri = await AsyncStorage.getItem(PHOTO_STORAGE_KEY);
-      logger.info('[StorageService] Rehydrated photo URI:', uri);
-      return uri;
+      const data = await AsyncStorage.getItem(PHOTOS_STORAGE_KEY);
+      if (data) {
+        const photos = JSON.parse(data) as CapturedPhoto[];
+        logger.info('[StorageService] Loaded photos list, size:', photos.length);
+        return photos;
+      }
+      return [];
     } catch (error) {
-      logger.error('[StorageService] Error loading photo URI from local storage:', error);
-      return null;
+      logger.error('[StorageService] Error loading photos list from local storage:', error);
+      return [];
     }
   },
 
   /**
-   * Clear captured photo.
+   * Clear all captured photos from storage.
    */
-  clearCapturedPhoto: async (): Promise<void> => {
+  clearPhotos: async (): Promise<void> => {
     try {
-      await AsyncStorage.removeItem(PHOTO_STORAGE_KEY);
-      logger.info('[StorageService] Cleared photo URI from local storage');
+      await AsyncStorage.removeItem(PHOTOS_STORAGE_KEY);
+      logger.info('[StorageService] Cleared all photos from local storage');
     } catch (error) {
-      logger.error('[StorageService] Error clearing photo URI:', error);
+      logger.error('[StorageService] Error clearing photos list:', error);
       throw error;
     }
   },

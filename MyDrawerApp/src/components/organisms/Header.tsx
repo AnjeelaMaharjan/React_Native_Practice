@@ -1,10 +1,10 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '@/context/ThemeContext';
 import { useDrawerContext } from '@/features/navigation/context/DrawerContext';
-import { SPACING, BORDER_RADIUS } from '@/styles/spacing';
+import { Headerstyles as styles } from '@/styles';
 
 interface HeaderProps {
   title: string;
@@ -65,46 +65,5 @@ export const Header: React.FC<HeaderProps> = ({
       </View>
     </SafeAreaView>
   );
-};
-
-const styles = StyleSheet.create({
-  safeArea: {
-    borderBottomWidth: 1,
-    elevation: 2,
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 1,
-  },
-  container: {
-    height: 60,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: SPACING.md,
-  },
-  leftSection: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flex: 1,
-  },
-  rightSection: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: SPACING.xs,
-  },
-  iconButton: {
-    width: 40,
-    height: 40,
-    borderRadius: BORDER_RADIUS.md,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: SPACING.sm,
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: '700',
-    letterSpacing: -0.5,
-  },
-});
-
+}
 export default Header;
