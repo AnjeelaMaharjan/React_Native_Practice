@@ -1,0 +1,100 @@
+========================================================================
+                      PROJECT WORKFLOW & ARCHITECTURE
+                              MyDrawerApp
+========================================================================
+
+This document outlines the directory structure, architecture patterns, and the 
+complete runtime workflow of the React Native/Expo internship practice project.
+
+------------------------------------------------------------------------
+1. PROJECT ARCHITECTURE & DESIGN SYSTEM
+------------------------------------------------------------------------
+The project utilizes a hybrid structure combining Expo Router's file-based 
+routing with a Feature-First modular source organization.
+
+A. Root Directories:
+   - app/      : Entry point, layouts, and routing paths (Expo Router v6).
+   - src/      : Core source codebase including modular features and UI elements.
+     ├── components/ : Shared atom/molecule/organism UI components.
+     ├── context/    : Global app state context providers (Theme context).
+     ├── features/   : Business domain components (camera, counter, pokemon).
+     ├── styles/     : Design system tokens (colors, spacing, typography).
+     └── utils/      : Helper utilities (logger, validators).
+
+B. Global Context Providers (app/_layout.tsx):
+   The root layout wraps the stack navigation in three providers:
+   1. SafeAreaProvider : Ensures safe layout boundaries across devices.
+   2. ThemeProvider    : Manages global theme modes (light/dark HSL themes).
+   3. DrawerProvider   : Tracks custom animated drawer toggle/slide states.
+   4. CounterProvider  : Centralizes state for the dispatcher counter app.
+
+------------------------------------------------------------------------
+2. NAVIGATION FLOW
+------------------------------------------------------------------------
+The project operates under a hierarchical navigation layout:
+- Root Stack (app/_layout.tsx): Renders the overall drawer navigator or 
+  redirects to sub-pages like Pokémon Details page (pokemon/[id]).
+- Drawer Layout (app/(drawer)/_layout.tsx): Extends the root layout and embeds 
+  the Bottom Tabs navigator, with a custom side drawer containing settings.
+- Bottom Tabs Layout (app/(drawer)/(tabs)/_layout.tsx): Coordinates four tab 
+  views: Pokédex, Counter, Camera, and Profile.
+
+------------------------------------------------------------------------
+3. DETAILED COMPONENT WORKFLOWS
+------------------------------------------------------------------------
+
+A. Pokédex Tracker Tab (app/(drawer)/(tabs)/index.tsx)
+   - Purpose: Displays nested collections of Pokémon.
+   - Layout: Leverages an outer FlatList. Each section header displays a category.
+   - Toggle Layout: Supports dynamic layout switching (Card Grid vs List layout).
+     - Card Grid Mode: Uses horizontal ScrollViews inside list rows showing 
+       rectangular cards.
+     - List Mode: Renders static linear items vertically within the screen.
+   - Navigation: Tapping an item navigates to app/pokemon/[id].tsx.
+
+B. Centralized Counter Tab (app/(drawer)/(tabs)/counter.tsx)
+   - Purpose: Centralized state manager using React Context/Reducer.
+   - Operations: Increment, decrement, reset, and multiply by two operations.
+   - State Transition Auditor: Real-time visual tracking of dispatched action 
+     types, payloads, and timestamps.
+   - Scrolling Cleanliness: Configured using a single vertical ScrollView to 
+     prevent nested scrolling conflicts.
+
+C. Camera & Storage Tab (app/(drawer)/(tabs)/camera.tsx)
+   - Purpose: Take photos, import library images, add descriptions, replace, 
+     export to native gallery, and manage local storage.
+   - Native Device Integration: Utilizes expo-camera for native viewfinder and 
+     expo-media-library for permanent saving.
+   - Local DB / Cache: Uses @react-native-async-storage/async-storage via a 
+     modular storage service (`src/features/camera/services/storageService.ts`) 
+     to save photo URIs, notes, and metadata on disk.
+   - Layout Mode Toggle:
+     - Card View: A multi-column responsive grid (2-4 columns based on screen 
+       width). Uses key re-rendering (`key={viewMode === 'card' ? ... : 'list'}`) 
+       to safely change column structures in React Native.
+     - List View: Single column layout displaying large row cards with image, 
+       timestamp, and descriptions.
+   - Selection/Batch Mode: Long-pressing or clicking "Select" puts the gallery 
+     in selection mode. Supports multi-selection checkboxes and batch deletion.
+   - Nested Scrolling Solution: Built entirely inside a primary FlatList. All 
+     top level action panels (snapshot/import buttons) are rendered inside 
+     ListHeaderComponent. Empty state uses ListEmptyComponent. This avoids nested 
+     scrolling issues and guarantees smooth native frame rendering.
+
+D. Profile Tab (app/(drawer)/(tabs)/profile.tsx) & Settings (app/(drawer)/settings.tsx)
+   - Profile Screen displays basic user credentials and features a detailed info 
+     modal using React Native Modal with tap-off dismissal.
+   - Settings Screen integrates SectionList mapping geographical Pradesh structures 
+     with sticky headers.
+
+------------------------------------------------------------------------
+4. CORE UTILITIES & BEST PRACTICES
+------------------------------------------------------------------------
+- Logger System: Custom client-side logging utility with levels (info, warn, error).
+- Typings: Fully written in TypeScript; components use precise type signatures 
+  for navigation parameters, captured photo elements, and state models.
+- Avoid Plain Values: All colors, typography, margins, and borders consume 
+  tokens from the shared styles package to maintain design system integrity.
+- Nesting Prevention: Never nest vertical scrollable views (FlatList/SectionList/
+  ScrollView) of the same orientation. Always map rows, or consolidate headers/
+  footers inside ListHeaderComponent/ListFooterComponent.
