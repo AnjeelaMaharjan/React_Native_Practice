@@ -8,11 +8,12 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   Alert,
-  SafeAreaView,
+
 } from 'react-native';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { useStudents } from '../hooks/useStudents';
 import { StudentCard } from '../components/StudentCard';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { studentService } from '../services/studentService';
 export default function StudentListScreen() {
   const router = useRouter();

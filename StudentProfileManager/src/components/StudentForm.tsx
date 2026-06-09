@@ -75,7 +75,7 @@ export const StudentForm: React.FC<StudentFormProps> = ({
       }
 
       const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        mediaTypes: ['images'],
         allowsEditing: true,
         aspect: [1, 1],
         quality: 0.8,
@@ -143,7 +143,7 @@ export const StudentForm: React.FC<StudentFormProps> = ({
                     </View>
                   )}
                   <View style={styles.editIconContainer}>
-                    <Text style={styles.editIconText}>📷</Text>
+                    <Text style={styles.editIconText}>C</Text>
                   </View>
                 </TouchableOpacity>
                 {errors.imageUri && touched.imageUri && (

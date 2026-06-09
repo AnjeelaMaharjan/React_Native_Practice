@@ -36,26 +36,26 @@ export const StudentCard: React.FC<StudentCardProps> = ({ student, onEdit, onDel
             {student.fullName}
           </Text>
           <Text style={styles.facultyBadgeText}>
-            🎓 {student.faculty} • {student.semester}
+             {student.faculty} • {student.semester}
           </Text>
         </View>
       </View>
 
       <View style={styles.cardBody}>
         <View style={styles.infoRow}>
-          <Text style={styles.infoLabel}>📧 Email:</Text>
+          <Text style={styles.infoLabel}> Email:</Text>
           <Text style={styles.infoValue} numberOfLines={1}>
             {student.email}
           </Text>
         </View>
 
         <View style={styles.infoRow}>
-          <Text style={styles.infoLabel}>📞 Phone:</Text>
+          <Text style={styles.infoLabel}> Phone:</Text>
           <Text style={styles.infoValue}>{student.phone}</Text>
         </View>
 
         <View style={styles.infoRow}>
-          <Text style={styles.infoLabel}>📍 Address:</Text>
+          <Text style={styles.infoLabel}> Address:</Text>
           <Text style={styles.infoValue} numberOfLines={1}>
             {student.address}
           </Text>
@@ -65,11 +65,11 @@ export const StudentCard: React.FC<StudentCardProps> = ({ student, onEdit, onDel
       {/* Action Buttons */}
       <View style={styles.actionRow}>
         <TouchableOpacity style={styles.editButton} onPress={() => onEdit(student)} activeOpacity={0.7}>
-          <Text style={styles.editButtonText}>✏️ Edit Profile</Text>
+          <Text style={styles.editButtonText}> Edit Profile</Text>
         </TouchableOpacity>
         
         <TouchableOpacity style={styles.deleteButton} onPress={() => onDelete(student.id)} activeOpacity={0.7}>
-          <Text style={styles.deleteButtonText}>🗑️ Delete</Text>
+          <Text style={styles.deleteButtonText}> Delete</Text>
         </TouchableOpacity>
       </View>
     </View>
