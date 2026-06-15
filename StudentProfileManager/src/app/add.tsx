@@ -37,7 +37,7 @@ export default function AddStudentScreen() {
     <View style={styles.container}>
       {loading && (
         <View style={styles.loadingOverlay}>
-          <ActivityIndicator size="large" color="#4F46E5" />
+          <ActivityIndicator size="large" color="#ee8b2f" />
           <Text style={styles.loadingText}>Saving Profile...</Text>
         </View>
       )}
@@ -82,7 +82,7 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     marginTop: 12,
-    color: '#4F46E5',
+    color: '#ee8b2f',
     fontSize: 16,
     fontWeight: '600',
   },

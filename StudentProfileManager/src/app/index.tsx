@@ -88,7 +88,7 @@ export default function StudentListScreen() {
         {/* Loading Indicator */}
         {loading && studentsList.length === 0 ? (
           <View style={styles.centerContainer}>
-            <ActivityIndicator size="large" color="#4F46E5" />
+            <ActivityIndicator size="large" color="#ee8b2f" />
           </View>
         ) : (
           /* Student FlatList */
@@ -192,12 +192,12 @@ const styles = StyleSheet.create({
     bottom: 24,
     left: 24,
     right: 24,
-    backgroundColor: '#4F46E5',
+    backgroundColor: '#ee8b2f',
     borderRadius: 12,
     height: 52,
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#4F46E5',
+    shadowColor: '#ee8b2f',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,

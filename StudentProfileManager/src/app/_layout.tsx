@@ -25,7 +25,7 @@ export default function RootLayout() {
   if (!dbReady) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#4F46E5" />
+        <ActivityIndicator size="large" color="#ee8b2f" />
       </View>
     );
   }
@@ -34,7 +34,7 @@ export default function RootLayout() {
     <Stack
       screenOptions={{
         headerStyle: {
-          backgroundColor: '#4F46E5', // Deep Indigo primary theme
+          backgroundColor: '#ee8b2f', // Deep Indigo primary theme
         },
         headerTintColor: '#ffffff',
         headerTitleStyle: {

@@ -47,7 +47,7 @@ export default function EditStudentScreen() {
     return (
       <>
         <View style={styles.centerContainer}>
-          <ActivityIndicator size="large" color="#4F46E5" />
+          <ActivityIndicator size="large" color="#ee8b2f" />
           <Text style={styles.loadingText}>Fetching details...</Text>
         </View>
       </>
@@ -95,7 +95,7 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     marginTop: 12,
-    color: '#4F46E5',
+    color: '#ee8b2f',
     fontSize: 16,
     fontWeight: '600',
   },
