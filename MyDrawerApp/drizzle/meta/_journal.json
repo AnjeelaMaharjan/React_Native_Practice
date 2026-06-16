@@ -15,6 +15,13 @@
       "when": 1780565203723,
       "tag": "0001_table2",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1781503635553,
+      "tag": "0002_puzzling_guardian",
+      "breakpoints": true
     }
   ]
 }
