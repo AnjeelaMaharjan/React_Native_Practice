@@ -88,13 +88,26 @@ export default function TabsLayout() {
           ),
         }}
       />
-        <Tabs.Screen
-        name="try"
+      <Tabs.Screen
+        name="character"
         options={{
-          title: 'try',
+          title: 'Characters',
           tabBarIcon: ({ color, focused }) => (
             <Ionicons
-              name={focused ? 'albums' : 'person-outline'}
+              name={focused ? 'people' : 'people-outline'}
+              size={24}
+              color={color}
+            />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="offline_sync"
+        options={{
+          title: 'Offline Sync',
+          tabBarIcon: ({ color, focused }) => (
+            <Ionicons
+              name={focused ? 'cloud-offline' : 'cloud-offline-outline'}
               size={24}
               color={color}
             />

@@ -15,6 +15,10 @@ import { ApolloProvider, useQuery } from "@apollo/client/react";
 import { gql } from "@apollo/client";
 
 import { client } from "@/graphql/client";
+import { useDb } from "@/db/database";
+import { items } from "@/db/schema";
+import { useLiveQuery } from "drizzle-orm/expo-sqlite";
+import { eq } from "drizzle-orm";
 
 // Types
 interface Character {
@@ -58,11 +62,26 @@ const GET_CHARACTERS = gql`
 `;
 
 const CharacterList = () => {
+  const db = useDb();
   const [searchText, setSearchText] = useState("");
   const [page, setPage] = useState(1);
   const [allCharacters, setAllCharacters] = useState<Character[]>([]);
 
-  const { loading, error, data, refetch, fetchMore } =
+  // 1. Live query all saved items from the SQLite database
+  const liveQueryResult = useLiveQuery(db.select().from(items));
+  const savedItems = liveQueryResult && typeof liveQueryResult === 'object' && 'data' in liveQueryResult 
+    ? (liveQueryResult as any).data 
+    : liveQueryResult;
+
+  // 2. Log saved data to the console whenever it changes
+  useEffect(() => {
+    console.log("----------------------------------------");
+    console.log("Current saved items in SQLite DB:");
+    console.log(JSON.stringify(savedItems, null, 2));
+    console.log("----------------------------------------");
+  }, [savedItems]);
+
+  const { loading, error, data, refetch } =
     useQuery<GetCharactersData>(GET_CHARACTERS, {
       variables: {
         page: 1,
@@ -102,6 +121,41 @@ const CharacterList = () => {
     });
   };
 
+  // 3. Save character to database handler
+  const handleDownload = async (character: Character) => {
+    try {
+      await db.insert(items).values({
+        id: character.id,
+        title: character.name,
+        description: `${character.species} (${character.status})`,
+        updatedAt: new Date(),
+        syncedAt: new Date(),
+      }).onConflictDoUpdate({
+        target: items.id,
+        set: {
+          title: character.name,
+          description: `${character.species} (${character.status})`,
+          updatedAt: new Date(),
+        }
+      });
+      console.log(`[Database] Saved character: ${character.name} (ID: ${character.id})`);
+    } catch (err: any) {
+      console.error("Failed to save character:", err);
+      Alert.alert("Error", "Could not save character offline.");
+    }
+  };
+
+  // 4. Remove character from database handler
+  const handleRemove = async (id: string) => {
+    try {
+      await db.delete(items).where(eq(items.id, id));
+      console.log(`[Database] Removed character ID: ${id}`);
+    } catch (err: any) {
+      console.error("Failed to delete character:", err);
+      Alert.alert("Error", "Could not delete character.");
+    }
+  };
+
   if (error) {
     Alert.alert("Error", error.message);
     return <Text style={styles.error}>Error: {error.message}</Text>;
@@ -127,15 +181,29 @@ const CharacterList = () => {
         data={allCharacters}
         keyExtractor={(item) => item.id}
         className="ricky card"
-        renderItem={({ item }) => (
-          <View style={styles.card}>
-            <Image source={{ uri: item.image }} style={styles.image} />
-            <Text style={styles.name}>{item.name}</Text>
-            <Text>Status: {item.status}</Text>
-            <Text>Species: {item.species}</Text>
-            <Text>Gender: {item.gender}</Text>
-          </View>
-        )}
+        renderItem={({ item }) => {
+          const isSaved = savedItems?.some((saved: any) => String(saved.id) === String(item.id));
+          return (
+            <View style={styles.card}>
+              <Image source={{ uri: item.image }} style={styles.image} />
+              <Text style={styles.name}>{item.name}</Text>
+              <Text>Status: {item.status}</Text>
+              <Text>Species: {item.species}</Text>
+              <Text>Gender: {item.gender}</Text>
+              <TouchableOpacity
+                style={[
+                  styles.downloadButton,
+                  isSaved ? styles.removeButton : styles.saveButton,
+                ]}
+                onPress={() => (isSaved ? handleRemove(item.id) : handleDownload(item))}
+              >
+                <Text style={styles.downloadButtonText}>
+                  {isSaved ? "Remove Offline" : "Download"}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          );
+        }}
         ListFooterComponent={
           loading ? (
             <ActivityIndicator
@@ -215,6 +283,30 @@ const styles = StyleSheet.create({
   },
   loadMoreText: { color: "white", fontWeight: "bold", fontSize: 16 },
   error: { color: "red", textAlign: "center", marginTop: 20 },
+  downloadButton: {
+    marginTop: 12,
+    paddingVertical: 8,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    width: "80%",
+    alignItems: "center",
+    elevation: 2,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 1.41,
+  },
+  saveButton: {
+    backgroundColor: "#00bfff",
+  },
+  removeButton: {
+    backgroundColor: "#ff4d4f",
+  },
+  downloadButtonText: {
+    color: "white",
+    fontWeight: "bold",
+    fontSize: 14,
+  },
 });
 
 export default GraphQLExample;
