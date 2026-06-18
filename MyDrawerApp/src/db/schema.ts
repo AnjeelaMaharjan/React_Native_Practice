@@ -33,3 +33,12 @@ export const syncQueue = sqliteTable('sync_queue', {
   payload: text('payload').notNull(),
   createdAt: integer('created_at', { mode: 'timestamp' }).notNull(),
 });
+
+export const characters = sqliteTable('characters', { 
+  id: integer('id').primaryKey(),
+  name: text('name').notNull(),
+  description: text('description').notNull(),
+  synced: integer('synced').default(1).notNull(),
+  deletedAt: integer('deleted_at', { mode: 'timestamp' }),
+  updatedAt: integer('updated_at', { mode: 'timestamp' }).notNull(),
+});
