@@ -21,7 +21,8 @@ const MENU_ITEMS: MenuItem[] = [
   { id: 'profile', label: 'My Profile', route: '/(drawer)/(tabs)/profile', icon: 'person-outline' },
   { id: 'settings', label: 'System Settings', route: '/(drawer)/settings', icon: 'settings-outline' },
   { id: 'CreatePost', label: 'Create Post', route: '/(drawer)/CreatePost', icon: 'create-outline'},
-  { id: 'GraphQLExample', label: 'GraphQL Example', route: '/(drawer)/(tabs)/GraphQLExample', icon: 'git-network-outline' },
+  { id: 'character', label: 'Rick & Morty Characters', route: '/(drawer)/(tabs)/character', icon: 'people-outline' },
+  { id: 'offline_sync', label: 'Offline Sync Items', route: '/(drawer)/(tabs)/offline_sync', icon: 'cloud-offline-outline' },
 ];
 
 interface CustomDrawerContentProps {
@@ -51,7 +52,8 @@ export const CustomDrawerContent: React.FC<CustomDrawerContentProps> = ({ onClos
     if (route.includes('camera')) return activeSegments.includes('camera');
     if (route.includes('profile')) return activeSegments.includes('profile');
     if (route.includes('settings')) return activeSegments.includes('settings');
-    if (route.includes('GraphQLExample')) return activeSegments.includes('GraphQLExample');
+    if (route.includes('character')) return activeSegments.includes('character');
+    if (route.includes('offline_sync')) return activeSegments.includes('offline_sync');
     if (route.includes('CreatePost')) return activeSegments.includes('CreatePost');
     if (route.includes('pokemon')) return activeSegments.includes('pokemon');
     return false;
