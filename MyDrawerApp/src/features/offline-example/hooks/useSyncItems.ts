@@ -36,9 +36,19 @@ export function useSyncItems() {
   const lastAutoSyncRef = useRef<number>(0);
 
   // ─── 1. LOCAL DATA (always the source of truth for the UI) ───
-  const { data: localItems } = useLiveQuery(
+  const liveQueryResult = useLiveQuery(
     db.select().from(items).orderBy(desc(items.updatedAt))
   );
+  const localItems = liveQueryResult && typeof liveQueryResult === 'object' && 'data' in liveQueryResult 
+    ? (liveQueryResult as any).data 
+    : liveQueryResult;
+
+  useEffect(() => {
+    console.log("----------------------------------------");
+    console.log("[useSyncItems] Live items in local SQLite DB:");
+    console.log(JSON.stringify(localItems, null, 2));
+    console.log("----------------------------------------");
+  }, [localItems]);
 
   // ─── 2. APOLLO QUERIES (only used for fetching remote data) ───
   const { refetch } = useQuery<CharactersResponse>(GET_ITEMS, {
