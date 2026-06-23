@@ -3,6 +3,7 @@ import { StyleSheet, View, Text, ActivityIndicator } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { StudentForm } from '@/components/StudentForm'; // Fixed import
 import { useStudents } from '@/hooks/useStudents';
+import { useTranslation } from 'react-i18next';
 
 /**
  * Dynamic Screen Route for updating a student profile.
@@ -17,6 +18,7 @@ export default function EditStudentScreen() {
   const { id } = useLocalSearchParams();
   const router = useRouter();
   const studentId = parseInt(id as string, 10);
+  const { t } = useTranslation();
 
   const { fetchStudentById, updateStudent, currentStudent, loading, error } = useStudents();
 
@@ -48,7 +50,7 @@ export default function EditStudentScreen() {
       <>
         <View style={styles.centerContainer}>
           <ActivityIndicator size="large" color="#ee8b2f" />
-          <Text style={styles.loadingText}>Fetching details...</Text>
+          <Text style={styles.loadingText}>{t('edit.fetching', 'Fetching details...')}</Text>
         </View>
       </>
     );
@@ -57,7 +59,7 @@ export default function EditStudentScreen() {
   if (error || !currentStudent) {
     return (
       <View style={styles.centerContainer}>
-        <Text style={styles.errorText}>⚠️ {error || 'Student not found.'}</Text>
+        <Text style={styles.errorText}>⚠️ {error || t('edit.notFound', 'Student not found.')}</Text>
       </View>
     );
   }
@@ -75,7 +77,7 @@ export default function EditStudentScreen() {
           imageUri: currentStudent.imageUri,
         }}
         onSubmit={handleSubmit}
-        submitButtonText="Save Changes"
+        submitButtonText={t('edit.saveChanges', 'Save Changes')}
       />
     </View>
   );
