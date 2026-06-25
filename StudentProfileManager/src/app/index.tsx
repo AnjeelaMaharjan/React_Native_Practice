@@ -15,7 +15,9 @@ import { useStudents } from '../hooks/useStudents';
 import { StudentCard } from '../components/StudentCard';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { studentService } from '../services/studentService';
+import { useTranslation } from 'react-i18next';
 export default function StudentListScreen() {
+  const { t } = useTranslation();
   const router = useRouter();
   const { studentsList, loading, fetchStudents, deleteStudent } = useStudents();
   const [searchQuery, setSearchQuery] = useState('');
@@ -46,19 +48,19 @@ export default function StudentListScreen() {
       await deleteStudent(id);
     } catch (error) {
       console.error('Failed to delete student:', error);
-      Alert.alert('Error', 'Failed to delete student profile.');
+      Alert.alert(t('common.error', 'Error'), t('home.errorDelete', 'Failed to delete student profile.'));
     }
   };
 
   // Delete confirmation dialog (Phase 5)
   const handleDelete = (id: number) => {
     Alert.alert(
-      'Delete Profile',
-      'Are you sure you want to delete this student profile permanently?',
+      t('home.deleteTitle', 'Delete Profile'),
+      t('home.deleteMessage', 'Are you sure you want to delete this student profile permanently?'),
       [
-        { text: 'Cancel', style: 'cancel' },
+        { text: t('home.cancel', 'Cancel'), style: 'cancel' },
         {
-          text: 'Delete',
+          text: t('home.delete', 'Delete'),
           style: 'destructive',
           onPress: () => executeDelete(id),
         },
@@ -73,7 +75,7 @@ export default function StudentListScreen() {
         <View style={styles.searchContainer}>
           <TextInput
             style={styles.searchInput}
-            placeholder="🔍 Search student by name..."
+            placeholder={t('home.searchPlaceholder')}
             placeholderTextColor="#9CA3AF"
             value={searchQuery}
             onChangeText={handleSearch}
@@ -102,11 +104,11 @@ export default function StudentListScreen() {
             ListEmptyComponent={
               <View style={styles.emptyContainer}>
                 <Text style={styles.emptyIcon}>🎓</Text>
-                <Text style={styles.emptyTitle}>No students found</Text>
+                <Text style={styles.emptyTitle}>{t('home.emptyTitle')}</Text>
                 <Text style={styles.emptySubtitle}>
                   {searchQuery.length > 0
-                    ? "Try adjusting your search criteria."
-                    : "Tap the button below to add your first student."}
+                       ? t('home.emptySubtitleSearch')
+                       : t('home.emptySubtitleDefault')}
                 </Text>
               </View>
             }
@@ -119,7 +121,7 @@ export default function StudentListScreen() {
           onPress={() => router.push('/add')}
           activeOpacity={0.85}
         >
-          <Text style={styles.fabText}>+ Add Student</Text>
+          <Text style={styles.fabText}>{t('home.addStudent')}</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>
