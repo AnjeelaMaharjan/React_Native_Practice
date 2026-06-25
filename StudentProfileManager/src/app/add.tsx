@@ -3,6 +3,7 @@ import { StyleSheet, View, Text, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
 import { StudentForm } from '../components/StudentForm';
 import { useStudents } from '../hooks/useStudents';
+import { useTranslation } from 'react-i18next';
 
 /**
  * Screen component for adding a student profile.
@@ -15,6 +16,7 @@ import { useStudents } from '../hooks/useStudents';
 export default function AddStudentScreen() {
   const router = useRouter();
   const { addStudent, loading, error } = useStudents();
+  const { t } = useTranslation();
 
   const handleSubmit = async (values: any) => {
     try {
@@ -38,7 +40,7 @@ export default function AddStudentScreen() {
       {loading && (
         <View style={styles.loadingOverlay}>
           <ActivityIndicator size="large" color="#ee8b2f" />
-          <Text style={styles.loadingText}>Saving Profile...</Text>
+          <Text style={styles.loadingText}>{t('add.saving', 'Saving Profile...')}</Text>
         </View>
       )}
       {error && (
@@ -46,7 +48,7 @@ export default function AddStudentScreen() {
           <Text style={styles.errorText}>⚠️ {error}</Text>
         </View>
       )}
-      <StudentForm onSubmit={handleSubmit} submitButtonText="Register Student" />
+      <StudentForm onSubmit={handleSubmit} submitButtonText={t('edit.registerStudent', 'Register Student')} />
     </View>
   );
 }
