@@ -1,36 +1,50 @@
+import { copyAsync, documentDirectory } from 'expo-file-system/legacy';
+import * as ImagePicker from 'expo-image-picker';
+import { Formik } from 'formik';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import {
-  View,
-  Text,
-  TextInput,
-  StyleSheet,
-  TouchableOpacity,
-  ScrollView,
+  Alert,
   Image,
   KeyboardAvoidingView,
   Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from 'react-native';
-import { Formik } from 'formik';
 import * as Yup from 'yup';
-import * as ImagePicker from 'expo-image-picker';
-import { documentDirectory, copyAsync } from 'expo-file-system/legacy';
 
-// Validation Schema using Yup
-export const studentValidationSchema = Yup.object().shape({
-  fullName: Yup.string()
-    .min(3, 'Name must be at least 3 characters')
-    .required('Full Name is required'),
-  email: Yup.string()
-    .email('Please enter a valid email address')
-    .required('Email is required'),
-  phone: Yup.string()
-    .matches(/^[0-9\-+\s]{8,15}$/, 'Invalid phone number format')
-    .required('Phone number is required'),
-  address: Yup.string().required('Address is required'),
-  faculty: Yup.string().required('Faculty is required'),
-  semester: Yup.string().required('Semester is required'),
-  imageUri: Yup.string().nullable(),
-});
+// Helper: converts a display name like "Computer Science" -> "computerScience"
+export const getFacultyKey = (fac: string): string => {
+  const words = fac.split(' ');
+  return words[0].toLowerCase() + words.slice(1).map(w => w.charAt(0).toUpperCase() + w.slice(1)).join('');
+};
+
+// Helper: converts a display name like "Semester 1" -> "semester1"
+export const getSemesterKey = (sem: string): string => {
+  return sem.charAt(0).toLowerCase() + sem.slice(1).replace(/\s+/g, '');
+};
+
+// Dynamic Yup validation schema driven by i18n translations
+export const getValidationSchema = (t: (key: string, fallback: string) => string) =>
+  Yup.object().shape({
+    fullName: Yup.string()
+      .min(3, t('validation.nameMin', 'Name must be at least 3 characters'))
+      .required(t('validation.nameRequired', 'Full Name is required')),
+    email: Yup.string()
+      .email(t('validation.emailInvalid', 'Please enter a valid email address'))
+      .required(t('validation.emailRequired', 'Email is required')),
+    phone: Yup.string()
+      .matches(/^[0-9\-+\s]{8,15}$/, t('validation.phoneInvalid', 'Invalid phone number format'))
+      .required(t('validation.phoneRequired', 'Phone number is required')),
+    address: Yup.string().required(t('validation.addressRequired', 'Address is required')),
+    faculty: Yup.string().required(t('validation.facultyRequired', 'Faculty is required')),
+    semester: Yup.string().required(t('validation.semesterRequired', 'Semester is required')),
+    imageUri: Yup.string().nullable(),
+  });
 
 interface StudentFormValues {
   fullName: string;
@@ -48,8 +62,24 @@ interface StudentFormProps {
   submitButtonText: string;
 }
 
-const FACULTIES = ['Computer Science', 'Information Technology', 'Software Engineering', 'Business Administration', 'Civil Engineering'];
-const SEMESTERS = ['Semester 1', 'Semester 2', 'Semester 3', 'Semester 4', 'Semester 5', 'Semester 6', 'Semester 7', 'Semester 8'];
+// Stored values remain English (DB consistency). UI display is translated via keys.
+const FACULTIES = [
+  'Computer Science',
+  'Information Technology',
+  'Software Engineering',
+  'Business Administration',
+  'Civil Engineering',
+];
+const SEMESTERS = [
+  'Semester 1',
+  'Semester 2',
+  'Semester 3',
+  'Semester 4',
+  'Semester 5',
+  'Semester 6',
+  'Semester 7',
+  'Semester 8',
+];
 
 export const StudentForm: React.FC<StudentFormProps> = ({
   initialValues = {
@@ -64,13 +94,16 @@ export const StudentForm: React.FC<StudentFormProps> = ({
   onSubmit,
   submitButtonText,
 }) => {
-  
-  // Handlers for picking image (Phase 6)
+  const { t } = useTranslation();
+
   const handlePickImage = async (setFieldValue: (field: string, value: any) => void) => {
     try {
       const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
       if (status !== 'granted') {
-        alert('Permission to access photos is required to add a profile image.');
+        Alert.alert(
+          t('common.error', 'Error'),
+          t('form.photoPermission', 'Permission to access photos is required to add a profile image.')
+        );
         return;
       }
 
@@ -83,17 +116,12 @@ export const StudentForm: React.FC<StudentFormProps> = ({
 
       if (!result.canceled && result.assets && result.assets.length > 0) {
         const pickedUri = result.assets[0].uri;
-        
+
         if (documentDirectory) {
           // Save the photo locally inside app directory only on native mobile platforms
           const filename = pickedUri.split('/').pop();
           const localUri = `${documentDirectory}${Date.now()}_${filename}`;
-          
-          await copyAsync({
-            from: pickedUri,
-            to: localUri,
-          });
-
+          await copyAsync({ from: pickedUri, to: localUri });
           setFieldValue('imageUri', localUri);
         } else {
           // On Web, use the picked URI (typically a blob: URI) directly
@@ -102,7 +130,10 @@ export const StudentForm: React.FC<StudentFormProps> = ({
       }
     } catch (error) {
       console.error('Error selecting profile image:', error);
-      alert('An error occurred while picking the image.');
+      Alert.alert(
+        t('common.error', 'Error'),
+        t('form.photoError', 'An error occurred while picking the image.')
+      );
     }
   };
 
@@ -114,7 +145,7 @@ export const StudentForm: React.FC<StudentFormProps> = ({
       <ScrollView contentContainerStyle={styles.scrollContainer} keyboardShouldPersistTaps="handled">
         <Formik
           initialValues={initialValues}
-          validationSchema={studentValidationSchema}
+          validationSchema={getValidationSchema(t as any)}
           onSubmit={onSubmit}
         >
           {({
@@ -128,7 +159,7 @@ export const StudentForm: React.FC<StudentFormProps> = ({
             isValid,
           }) => (
             <View style={styles.formContainer}>
-              {/* Profile Image Picker Container */}
+              {/* Profile Image Picker */}
               <View style={styles.imagePickerContainer}>
                 <TouchableOpacity
                   style={styles.avatarTouchable}
@@ -139,11 +170,13 @@ export const StudentForm: React.FC<StudentFormProps> = ({
                     <Image source={{ uri: values.imageUri }} style={styles.avatar} />
                   ) : (
                     <View style={styles.avatarPlaceholder}>
-                      <Text style={styles.avatarPlaceholderText}>Add Photo</Text>
+                      <Text style={styles.avatarPlaceholderText}>
+                        {t('form.addPhoto', 'Add Photo')}
+                      </Text>
                     </View>
                   )}
                   <View style={styles.editIconContainer}>
-                    <Text style={styles.editIconText}>C</Text>
+                    <Text style={styles.editIconText}>✎</Text>
                   </View>
                 </TouchableOpacity>
                 {errors.imageUri && touched.imageUri && (
@@ -151,12 +184,12 @@ export const StudentForm: React.FC<StudentFormProps> = ({
                 )}
               </View>
 
-              {/* Input Fields */}
+              {/* Full Name */}
               <View style={styles.inputGroup}>
-                <Text style={styles.label}>Full Name</Text>
+                <Text style={styles.label}>{t('form.fullName', 'Full Name')}</Text>
                 <TextInput
                   style={[styles.input, touched.fullName && errors.fullName ? styles.inputError : null]}
-                  placeholder="e.g. John Doe"
+                  placeholder={t('form.fullNamePlaceholder', 'e.g. John Doe')}
                   placeholderTextColor="#9CA3AF"
                   onChangeText={handleChange('fullName')}
                   onBlur={handleBlur('fullName')}
@@ -167,11 +200,12 @@ export const StudentForm: React.FC<StudentFormProps> = ({
                 )}
               </View>
 
+              {/* Email */}
               <View style={styles.inputGroup}>
-                <Text style={styles.label}>Email Address</Text>
+                <Text style={styles.label}>{t('form.email', 'Email Address')}</Text>
                 <TextInput
                   style={[styles.input, touched.email && errors.email ? styles.inputError : null]}
-                  placeholder="e.g. john.doe@example.com"
+                  placeholder={t('form.emailPlaceholder', 'e.g. john.doe@example.com')}
                   placeholderTextColor="#9CA3AF"
                   keyboardType="email-address"
                   autoCapitalize="none"
@@ -184,11 +218,12 @@ export const StudentForm: React.FC<StudentFormProps> = ({
                 )}
               </View>
 
+              {/* Phone */}
               <View style={styles.inputGroup}>
-                <Text style={styles.label}>Phone Number</Text>
+                <Text style={styles.label}>{t('form.phone', 'Phone Number')}</Text>
                 <TextInput
                   style={[styles.input, touched.phone && errors.phone ? styles.inputError : null]}
-                  placeholder="e.g. +1 555-0199"
+                  placeholder={t('form.phonePlaceholder', 'e.g. +977 9800000000')}
                   placeholderTextColor="#9CA3AF"
                   keyboardType="phone-pad"
                   onChangeText={handleChange('phone')}
@@ -200,11 +235,12 @@ export const StudentForm: React.FC<StudentFormProps> = ({
                 )}
               </View>
 
+              {/* Address */}
               <View style={styles.inputGroup}>
-                <Text style={styles.label}>Home Address</Text>
+                <Text style={styles.label}>{t('form.address', 'Home Address')}</Text>
                 <TextInput
                   style={[styles.input, touched.address && errors.address ? styles.inputError : null]}
-                  placeholder="e.g. 123 Main St, New York"
+                  placeholder={t('form.addressPlaceholder', 'e.g. Kathmandu, Nepal')}
                   placeholderTextColor="#9CA3AF"
                   onChangeText={handleChange('address')}
                   onBlur={handleBlur('address')}
@@ -217,7 +253,7 @@ export const StudentForm: React.FC<StudentFormProps> = ({
 
               {/* Faculty Selector */}
               <View style={styles.inputGroup}>
-                <Text style={styles.label}>Faculty</Text>
+                <Text style={styles.label}>{t('form.faculty', 'Faculty')}</Text>
                 <View style={styles.selectorRow}>
                   {FACULTIES.map((fac) => (
                     <TouchableOpacity
@@ -234,7 +270,7 @@ export const StudentForm: React.FC<StudentFormProps> = ({
                           values.faculty === fac ? styles.selectorItemTextActive : null,
                         ]}
                       >
-                        {fac}
+                        {t(`faculties.${getFacultyKey(fac)}`, fac)}
                       </Text>
                     </TouchableOpacity>
                   ))}
@@ -246,8 +282,12 @@ export const StudentForm: React.FC<StudentFormProps> = ({
 
               {/* Semester Selector */}
               <View style={styles.inputGroup}>
-                <Text style={styles.label}>Semester</Text>
-                <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.horizontalScroll}>
+                <Text style={styles.label}>{t('form.semester', 'Semester')}</Text>
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  style={styles.horizontalScroll}
+                >
                   <View style={styles.horizontalSelectorRow}>
                     {SEMESTERS.map((sem) => (
                       <TouchableOpacity
@@ -264,7 +304,7 @@ export const StudentForm: React.FC<StudentFormProps> = ({
                             values.semester === sem ? styles.semesterTextActive : null,
                           ]}
                         >
-                          {sem}
+                          {t(`semesters.${getSemesterKey(sem)}`, sem)}
                         </Text>
                       </TouchableOpacity>
                     ))}
@@ -346,7 +386,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     right: 0,
     bottom: 0,
-    backgroundColor: '#4F46E5',
+    backgroundColor: '#ee8b2f',
     width: 32,
     height: 32,
     borderRadius: 16,
@@ -403,14 +443,14 @@ const styles = StyleSheet.create({
   },
   selectorItemActive: {
     backgroundColor: '#EEF2FF',
-    borderColor: '#818CF8',
+    borderColor: '#fac18b',
   },
   selectorItemText: {
     fontSize: 13,
     color: '#4B5563',
   },
   selectorItemTextActive: {
-    color: '#4F46E5',
+    color: '#ee8b2f',
     fontWeight: '600',
   },
   horizontalScroll: {
@@ -432,18 +472,18 @@ const styles = StyleSheet.create({
   },
   semesterActive: {
     backgroundColor: '#EEF2FF',
-    borderColor: '#818CF8',
+    borderColor: '#fac18b',
   },
   semesterText: {
     fontSize: 13,
     color: '#4B5563',
   },
   semesterTextActive: {
-    color: '#4F46E5',
+    color: '#ee8b2f',
     fontWeight: '600',
   },
   submitButton: {
-    backgroundColor: '#4F46E5',
+    backgroundColor: '#ee8b2f',
     paddingVertical: 14,
     borderRadius: 10,
     alignItems: 'center',
