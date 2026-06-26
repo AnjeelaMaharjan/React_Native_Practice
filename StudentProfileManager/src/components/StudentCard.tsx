@@ -1,6 +1,8 @@
 import React from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import { Student } from '../db/schema';
+import { useTranslation } from 'react-i18next';
+import { getFacultyKey, getSemesterKey } from './StudentForm';
 
 interface StudentCardProps {
   student: Student;
@@ -18,6 +20,7 @@ export const StudentCard: React.FC<StudentCardProps> = ({ student, onEdit, onDel
       .toUpperCase()
       .slice(0, 2);
   };
+  const { t } = useTranslation();
 
   return (
     <View style={styles.card}>
@@ -36,26 +39,26 @@ export const StudentCard: React.FC<StudentCardProps> = ({ student, onEdit, onDel
             {student.fullName}
           </Text>
           <Text style={styles.facultyBadgeText}>
-             {student.faculty} • {student.semester}
+             {t(`faculties.${getFacultyKey(student.faculty)}`, student.faculty)} • {t(`semesters.${getSemesterKey(student.semester)}`, student.semester)}
           </Text>
         </View>
       </View>
 
       <View style={styles.cardBody}>
         <View style={styles.infoRow}>
-          <Text style={styles.infoLabel}> Email:</Text>
+          <Text style={styles.infoLabel}> {t('card.email')}</Text>
           <Text style={styles.infoValue} numberOfLines={1}>
             {student.email}
           </Text>
         </View>
 
         <View style={styles.infoRow}>
-          <Text style={styles.infoLabel}> Phone:</Text>
+          <Text style={styles.infoLabel}>{t('card.phone')}</Text>
           <Text style={styles.infoValue}>{student.phone}</Text>
         </View>
 
         <View style={styles.infoRow}>
-          <Text style={styles.infoLabel}> Address:</Text>
+          <Text style={styles.infoLabel}>{t('card.address')}</Text>
           <Text style={styles.infoValue} numberOfLines={1}>
             {student.address}
           </Text>
@@ -65,11 +68,11 @@ export const StudentCard: React.FC<StudentCardProps> = ({ student, onEdit, onDel
       {/* Action Buttons */}
       <View style={styles.actionRow}>
         <TouchableOpacity style={styles.editButton} onPress={() => onEdit(student)} activeOpacity={0.7}>
-          <Text style={styles.editButtonText}> Edit Profile</Text>
+          <Text style={styles.editButtonText}> {t('card.editProfile')} </Text>
         </TouchableOpacity>
         
         <TouchableOpacity style={styles.deleteButton} onPress={() => onDelete(student.id)} activeOpacity={0.7}>
-          <Text style={styles.deleteButtonText}> Delete</Text>
+          <Text style={styles.deleteButtonText}> {t('card.delete')} </Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -115,7 +118,7 @@ const styles = StyleSheet.create({
     borderColor: '#C7D2FE',
   },
   avatarPlaceholderText: {
-    color: '#4F46E5',
+    color: '#ee8b2f',
     fontWeight: '700',
     fontSize: 18,
   },
@@ -168,7 +171,7 @@ const styles = StyleSheet.create({
     borderColor: '#C7D2FE',
   },
   editButtonText: {
-    color: '#4F46E5',
+    color: '#ee8b2f',
     fontSize: 14,
     fontWeight: '600',
   },
